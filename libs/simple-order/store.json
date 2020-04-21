@@ -1,6 +1,6 @@
 {
-  "soap": { "lable": "Soap", "value": 0.65, "info": "per item" },
-  "bread": { "lable": "Soap", "value": 0.8, "info": "per item" },
+  "soap": { "lable": "Soap", "value": 0.65, "info": "per item","discount":70 },
+  "bread": { "lable": "Bread", "value": 0.8, "info": "per item" },
   "milk": { "lable": "Milk", "value": 1.3, "info": "per item" },
   "apples": { "lable": "Apples", "value": 1, "info": "per bag" }
 }

@@ -42,7 +42,7 @@ exports.timestamp = ()=>{
     return new Date().getTime()
 }
 
-exports.discount = (val=0, discount=0)=>{
+exports.discountIt = (val=0, discount=0)=>{
     if(!isNumber(val) || !isNumber(discount)) throw('discount props must be numbers!')
     const dcVal =  (val/100) * discount
     return  val - dcVal

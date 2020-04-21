@@ -1,6 +1,6 @@
 module.exports = ()=>{
     const store = require('./store.json')
-    const { uid, notify,discount } = require('../utils')
+    const { uid, notify,discountIt } = require('../utils')
     const {isEmpty,cloneDeep,reduce} = require('lodash') 
     return class Store {
         constructor(opts={}) {
@@ -97,7 +97,7 @@ module.exports = ()=>{
                 this.offerSchema.reduce((n, el, i) => {                
                         if(key===el.name)  {
                             const origValue = item.value
-                            item.value = discount(item.value,el.discount)
+                            item.value = discountIt(item.value,el.discount)
                             // check if disscount differs from original price 
                             if(origValue!==item.value ) item.discount = el.discount                  
                         }

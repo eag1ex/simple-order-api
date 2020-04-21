@@ -42,6 +42,8 @@ module.exports = () => {
             const purchase = {soap:2, milk:3,apples:4, bread:2}
             b.set(purchase)
             notify({Basket:b.get()})
+
+          //  console.log('listStore', this.listStore)
         }
         
         /**
