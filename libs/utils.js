@@ -1,8 +1,10 @@
 
 
 const util = require('util')
-var base64 = require('base-64')
-var Buffer = require('buffer').Buffer
+const base64 = require('base-64')
+const Buffer = require('buffer').Buffer
+const color = require('bash-color')
+const {isNumber} = require('lodash')
 /**
  * @prop {*} l any data to print
  * @prop {*} err display as error if set to true
@@ -34,4 +36,14 @@ exports.uid = (str) => {
     str = str.replace('-', '')
     var ref = base64.encode(Buffer.from(str))
     return ref.replace(/=/g, '')
+}
+
+exports.timestamp = ()=>{
+    return new Date().getTime()
+}
+
+exports.discount = (val=0, discount=0)=>{
+    if(!isNumber(val) || !isNumber(discount)) throw('discount props must be numbers!')
+    const dcVal =  (val/100) * discount
+    return  val - dcVal
 }

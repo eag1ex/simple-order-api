@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "base-64": "^0.1.0",
+    "bash-color": "0.0.4",
     "buffer": "^5.6.0",
     "eslint": "^6.8.0",
     "lodash": "^4.17.15",
