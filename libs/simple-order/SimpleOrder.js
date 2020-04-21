@@ -36,9 +36,12 @@ module.exports = () => {
 
             // collect all client orders here
             this.clientBaskets = {}
-            const b = new Basket(cloneDeep(this.listStore))
-            // b.set(,{hello:true})
-            // notify({Basket:b.get('soap')})
+            const id = timestamp()
+            const b = new Basket(id, cloneDeep(this.listStore))
+            
+            const purchase = {soap:2, milk:3,apples:4, bread:2}
+            b.set(purchase)
+            notify({Basket:b.get()})
         }
         
         /**
