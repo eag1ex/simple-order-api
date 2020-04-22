@@ -61,6 +61,9 @@ module.exports = function () {
          * @param {*} order provide your desired purchase (per item quantity) example: `{bread:2,soap:2,milk:2,apples:3}`
          */
         order(id = "", order = {}) {
+            if(!this.storeOpen()){
+                return { error: true, ...errorMessages['006']}
+            }
             if (isEmpty(this.listStore)) {
                 return { error: true, ...errorMessages['001']}
             }
@@ -69,15 +72,15 @@ module.exports = function () {
             }
             //id = timestamp()
             const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
-            const order = b.set(order)
+            const o = b.set(order)
                 .get().data
 
-            if (isEmpty(order) || !order) {
+            if (isEmpty(o) || !o) {
                 return { error: true, ...errorMessages['003'] }
             }
             // with this in mind we could create an update order, caching existing basket
             // and setting cache clear timeout
-            this.clientBaskets[id] = order
+            this.clientBaskets[id] = o
             return this.clientBaskets[id]
         }
     }

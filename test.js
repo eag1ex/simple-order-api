@@ -6,3 +6,4 @@
 
 const SimpleOrder = require('./libs/simple-order/SimpleOrder')()
 const so = new SimpleOrder({},true)
+so.order()

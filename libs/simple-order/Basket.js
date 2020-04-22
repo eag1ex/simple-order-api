@@ -22,6 +22,7 @@ module.exports = function(){
             this.baskets = {} // generate baskets and assign purchase offers
             this._baskets = {}
             this.genBasket()
+            this.storeErrors = [] // store generated errors
         }
 
 
@@ -84,7 +85,9 @@ module.exports = function(){
          */
         priceItem({ name, item }, offers = null) {
             if(!this.store[name]) {
-                notify(`[priceItem] cannot price the item because it does not exist`, 0)
+                const msg = `[priceItem] cannot price the item because it does not exist`
+                notify(msg, 0)
+                this.storeErrors.push(msg)
                 return null
             }
             // NOTE in case we have discount set directly on the store, use that
@@ -273,7 +276,9 @@ module.exports = function(){
             }
             for(let [key, value] of Object.entries(basket)){
                 if(!this.store[key]){
-                    notify(`sorry we dont have item: ${key} in our store `,0)
+                    const msg = `sorry we dont have item: ${key} in our store`
+                    notify(msg,0)
+                    this.storeErrors.push(msg)
                     continue
                 }
                 updatedEntry[key] = value

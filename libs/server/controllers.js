@@ -2,26 +2,39 @@
 
 
 module.exports = function (expressApp) {
-const {isEmpty} = require('lodash')
-const messages = require('../errors')    
-const SimpleOrder = require('../simple-order/SimpleOrder')()
+    const { timestamp,numDate } = require('../utils')
+    const { isEmpty,unset } = require('lodash')
+    const errorMessages = require('../errors')
+    const SimpleOrder = require('../simple-order/SimpleOrder')()
 
     return class ServerController {
         constructor(debug) {
             this.debug = debug
-            this.simpleOrder = new SimpleOrder({},this.debug)
-
+            this.simpleOrder = new SimpleOrder({}, this.debug)
         }
-        order(req, res) {
-            const query = req.query
-            if(isEmpty(query)){
-                return res.status(200).json({ success: false, message: messages['004'][0], code:messages['004'][1] });
-            }
-            const o = this.simpleOrder.order()
 
-            console.log('callin on order', req.query)
-           // this.simpleOrder.order(id = "", order = {}) {
-            return res.status(200).json({ success: true, message: 'works' });
+        order(req, res) {
+            let quote= req.query || {}
+            console.log('callin on order', quote)
+
+            if (isEmpty(quote)) {
+                return res.status(200).json({ error: true, ...errorMessages['004'] });
+            }
+            // use provided id or generate new
+            let id = quote.id ? quote.id:timestamp()
+            unset(quote,'id')
+
+            if(!numDate(id) && id){
+                return res.status(200).json({ error: true, ...errorMessages['005'] });
+            }
+            const o = this.simpleOrder.order(id,quote)
+
+            if (o.error) {
+                return res.status(200).json({ ...o });
+            }
+
+            // this.simpleOrder.order(id = "", order = {}) {
+            return res.status(200).json({ success: true, message: 'works', code: 200 });
         }
     }
 

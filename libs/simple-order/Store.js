@@ -3,6 +3,7 @@ module.exports = function(){
     //////////////////////
     // our available store
     const storeEntries = require('./store.json')
+    const errorMessages = require('../errors')
     //////////////////////
 
     const { storeConfig, basketConfig, currency } = require('./config')
@@ -15,7 +16,7 @@ module.exports = function(){
          * @param opts.offerSchema # refer to default structure from `config.js`
          */
         constructor(opts = {}, debug) {
-
+            this.lastStoreError = null // store our last store error
             this.debug = debug || null
             this._offerSchema = (opts ||{}).offerSchema || this.defaultOfferSchema
             this.applyDiscounts = (opts ||{}).applyDiscounts || true
@@ -30,8 +31,8 @@ module.exports = function(){
          * - items are already calculated and offerSchema is applied
          */
         get menu() {
+            this.lastStoreError = null
             if (this._menu) return this._menu
-
             try {
                 reduce(this.storeEntries, (n, el, k) => {
                     n[k] = Object.assign({}, el, { _id: uid(k) })
@@ -89,9 +90,24 @@ module.exports = function(){
          * - populate our store with valid entries from `store.json`
          */
         get storeEntries(){
+            
             if(this._storeEntries) return this._storeEntries
             this._storeEntries = this.validStore()
             return this._storeEntries
+        }
+
+        /**
+         * * check if the store is open
+         */
+        storeOpen(){
+            try{
+                this.validStore()
+                this.lastStoreError = null
+                return true
+            }catch(err){
+                notify(err,true)
+                return null
+            }
         }
 
         /**
@@ -99,6 +115,12 @@ module.exports = function(){
          */
         validStore(){
 
+            const throwError = ()=>{
+                this.lastStoreError = errorMessages['006'].message ///'Sorry, our store is out of stock!'
+                throw('ups, your store.json is either empty or has invalid items')
+            }
+            if(isEmpty(storeEntries) || !trueObject(storeEntries)) throwError()
+            
             const entries = {}
             for(let [key,item] of Object.entries(storeEntries)){
                     if(key.toString().length<2) {
@@ -130,7 +152,8 @@ module.exports = function(){
             }
 
             if(!trueObject(entries)){
-                throw('ups, your store.json is either empty or has invalid items')
+                ///'Sorry, our store is out of stock!'
+               throwError()
             }
             return entries
 

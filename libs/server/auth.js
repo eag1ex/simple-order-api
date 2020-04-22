@@ -24,7 +24,7 @@ module.exports = function (expressApp) {
         }
 
         AppUseAuth() {
-            expressApp.use(this.authCheck.bind(ServerAuth));
+            expressApp.use(this.authCheck.bind(this));
         }
 
         // SECTION disabled, not in play

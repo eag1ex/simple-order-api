@@ -1,6 +1,7 @@
 
 
 const DEBUG = true
+const errorMessages = require('../errors')
 const { notify } = require('../utils')
 const express = require('express')
 const app = express()
@@ -31,7 +32,7 @@ const controllers = new ServerCtrs(DEBUG)
 
 /////////////////////
 // set server routes
-app.get('/order', controllers.order.bind(ServerCtrs));
+app.get('/order', controllers.order.bind(controllers));
 // catch all other calls
 app.all("*", function (req, res) {
     return res.status(200).json({ success: true, message: 'works fine', url: req.url, status: 200 });
@@ -41,7 +42,7 @@ app.all("*", function (req, res) {
 // handle errors
 app.use(function (error, req, res, next) {
     //notify({ error }, true)
-    res.status(500).json({ error: error.toString(), message: 'server error' })
+    res.status(500).json({ error: error.toString(), ...errorMessages['5000']})
 });
 
 /////////////////////
