@@ -29,14 +29,18 @@ const ctr = new ServerCtrs()
 // set server routes
 app.get('/order', ctr.order.bind(ServerAuth));
 
+// catch all other calls
+app.all("*",function(req,res){
+    return res.status(200).json({ success: true, message: 'works fine', url:req.url, status:200 });
+})
 
 // handle errors
 app.use(function (error, req, res, next) {
-    notify({ error }, true)
-    res.status(500).json({ error, success: false, message: 'server error' })
+    //notify({ error }, true)
+    res.status(500).json({ error:error.toString(), message: 'server error' })
 });
 
 app.listen(config.port);
-console.log('Server running on port:', port);
+notify({message:`Server running `, port:config.port})
 
-module.exports = app;
+exports.app= app

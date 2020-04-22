@@ -7,6 +7,7 @@ module.exports = function (expressApp) {
 
         }
         order(req, res) {
+            console.log('callin on order')
             return res.status(200).json({ success: true, message: 'works' });
         }
     }

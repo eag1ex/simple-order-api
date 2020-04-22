@@ -4,7 +4,7 @@
  * - ServerAuth extention
  */
 module.exports = function (expressApp) {
-    const notify = require('../utils')
+    const {notify} = require('../utils')
     return class ServerAuth {
         constructor() {
 
