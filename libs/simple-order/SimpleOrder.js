@@ -141,7 +141,8 @@ module.exports = function () {
             const extraMeta = {
                 total:basket.total(),
                 subtotal: basket.subtotal(),
-                discounts: basket.getDisccounts(),
+                discounts: basket.priceDifferance(),  
+                //basket.getDisccounts(),
                 offers: basket.getOffers()
             }
 

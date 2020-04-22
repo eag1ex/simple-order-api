@@ -19,7 +19,7 @@ module.exports = function(){
             this.lastStoreError = null // store our last store error
             this.debug = debug || null
             this._offerSchema = (opts ||{}).offerSchema || this.defaultOfferSchema
-            this.applyDiscounts = (opts ||{}).applyDiscounts || true
+            this.applyStoreDiscounts = (opts ||{}).applyStoreDiscounts || true
             this.validOffer()        
         }
 
@@ -194,7 +194,7 @@ module.exports = function(){
          */
         calc(menu = {}) {
             // do not calculate 
-            if (!this.applyDiscounts) return menu
+            if (!this.applyStoreDiscounts) return menu
             const _menu = {}
             for (let [key, item] of Object.entries(menu)) {
                 // let {lable,value,_id} = item 

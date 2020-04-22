@@ -64,10 +64,10 @@ module.exports = function(){
          */
         getDisccounts() {
             if (!this.id) return null
-            let sub = 0
             const basket = this.baskets[this.id]['basket']
             const discounts = []
             try {
+                // grab all applied discounts
                 // not including offers, just store discounts
                 for (let [k, item] of Object.entries(basket)) {
                     if (item.metadata.discount !== undefined && item.metadata.offer===undefined) discounts.push(item.metadata.discount)
@@ -76,9 +76,28 @@ module.exports = function(){
             } catch (err) {
                 notify(err, true)
             }
-
+            // grab all applied 
             if (!discounts.length) return null
-            return Math.max.apply(null, discounts)
+
+            // get the highest discount applied
+            return  Math.max.apply(null, discounts)
+        }
+
+        /**
+         * - compare subtotal and total to get differance
+         */
+        priceDifferance() {
+            if (!this.id) return null
+
+            let total = this.total()
+            let sub = this.subtotal()
+
+            function diff(sub, total) {
+                return 100 * Math.abs((sub - total) / ((sub + total) / 2));
+            }
+
+            const df = diff(sub, total)
+            return Number(parseFloat(df).toFixed(2));
         }
 
         /**

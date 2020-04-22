@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "examples":"node ./examples.js",
     "server": "node ./libs/server/serverApp.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
