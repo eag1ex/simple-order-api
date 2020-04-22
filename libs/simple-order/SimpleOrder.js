@@ -23,15 +23,15 @@ Output should be to the console and appropriate HTTP requests (with appropriate 
  */
 
 
-module.exports = function(){
-
-    const { notify,timestamp } = require('../utils')
-    const {cloneDeep} = require('lodash') 
+module.exports = function () {
+    const errorMessages = require('../errors')
+    const { notify, timestamp } = require('../utils')
+    const { cloneDeep, isEmpty } = require('lodash')
     const Store = require('./Store')()
     const Basket = require('./Basket')()
-   
+
     return class SimpleOrder extends Store {
-        constructor(opts,debug) {
+        constructor(opts, debug) {
             super(opts, debug)
 
             // collect all client orders here
@@ -39,7 +39,7 @@ module.exports = function(){
 
             // const id = timestamp()
             // const b = new Basket(id, cloneDeep(this.listStore),this.offerSchema['basket'], this.debug)
-            
+
             // const purchase1 = {tuna:5,milk:2,apples:3}
             // const purchase2 = {bread:2,soap:2,milk:2,apples:3}
 
@@ -47,11 +47,11 @@ module.exports = function(){
             // notify({Basket:b.get().data})
 
         }
-        
+
         /**
          * - get available Store
          */
-        get listStore(){
+        get listStore() {
             return this.menu
         }
 
@@ -61,11 +61,20 @@ module.exports = function(){
          * @param {*} order provide your desired purchase (per item quantity) example: `{bread:2,soap:2,milk:2,apples:3}`
          */
         order(id = "", order = {}) {
-            id = timestamp()
+            if (isEmpty(this.listStore)) {
+                return { error: true, ...errorMessages['001']}
+            }
+            if (isEmpty(this.offerSchema['basket'])) {
+                return { error: true, ...errorMessages['002']}
+            }
+            //id = timestamp()
             const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
             const order = b.set(order)
                 .get().data
 
+            if (isEmpty(order) || !order) {
+                return { error: true, ...errorMessages['003'] }
+            }
             // with this in mind we could create an update order, caching existing basket
             // and setting cache clear timeout
             this.clientBaskets[id] = order

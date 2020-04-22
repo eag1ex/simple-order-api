@@ -55,3 +55,15 @@ exports.discountIt = (val=0, discount=0)=>{
     const dcVal =  (val/100) * discount
     return  val - dcVal
 }
+
+/**
+ * - accepting object of messages, example: `{'001':['SimpleOrder listStore is empty',001],...}`
+ * - returns : {'001':{message,code},...}
+ */
+exports.errorMessages = (messages) => {
+    const msgs = {}
+    for (let [k, v] of Object.entries(messages)) {
+        msgs[k] = { message: v[0], code: v[1] }
+    }
+    return msgs
+}

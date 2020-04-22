@@ -6,8 +6,8 @@
 module.exports = function (expressApp) {
     const {notify} = require('../utils')
     return class ServerAuth {
-        constructor() {
-
+        constructor(debug) {
+            this.debug = debug
         }
 
         authCheck(req, res, next) {
