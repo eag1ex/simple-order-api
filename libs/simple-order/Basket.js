@@ -4,20 +4,20 @@
  * * Basket
  * - generate Basket model for calculating orders
  */
-module.exports = () => {
+module.exports = function(){
     const { isEmpty, isString,reduce,cloneDeep } = require('lodash')
-    const { notify, discountIt } = require('../utils')
+    const { notify, discountIt, trueObject } = require('../utils')
     return class Basket {
-        constructor(id, store = {}, offers, debug) {
+        constructor(id, store = {}, offers=null, debug) {
             if (isEmpty(store)) throw ('store cannot be empty')
-            if (!Object.entries(store).length) throw ('store must be an object')
-            if (offers) {
-                if (!Object.entries(offers).length) throw ('offers must be an object, refer to defaultOffers')
-            }
+            if (!trueObject(store)) throw ('store must be an object')
+            if (offers && !trueObject(offers)) throw ('offers must be an object, refer to defaultOffers')
             if (!(id.toString())) throw ('id must be set')
             this.debug = debug
+            this.data = null // dynamicly changing data access variable
             this.id = id.toString();
             this.offers = offers || this.defaultOffers
+
             this.store = store
             this.baskets = {} // generate baskets and assign purchase offers
             this._baskets = {}
@@ -29,6 +29,7 @@ module.exports = () => {
          * @param {*} value provide value agains our id
          */
         set(value) {
+            this.data = null
             this.genBasket()
 
             if (!this.baskets[this.id]) {
@@ -44,12 +45,14 @@ module.exports = () => {
          * @param {*} id optional id, using global this.id
          */
         get(id = '') {
+            this.data = null
             if(!id) id = this.id
             if (!id || !isString(id)) {
-                notify(`invalid name`)
+                notify(`invalid name`,0)
                 return null
             }
-            return this.baskets[id]['basket']
+            this.data = this.baskets[id]['basket']
+            return this //this.baskets[id]['basket']
         }
 
         
@@ -111,9 +114,9 @@ module.exports = () => {
             // add decimal points
             const newPrice = calcPrice(d=>{
                 item['metadata']['discount'] =discount
-                if(this.debug) notify({message:'applying store/global discounts', name, discount, id})    
-            })
-            item.price = Number(parseFloat(calcPrice()).toFixed(2)); 
+                 if(this.debug) notify({message:'applying store/global discounts', name, discount, id:this.id})    
+            })    
+            item.price = Number(parseFloat(newPrice).toFixed(2)); 
 
             
             return item
@@ -136,11 +139,13 @@ module.exports = () => {
              *  */
             const offers = (key, purchase, allBskt) => {
 
-                const { buyItems, bread, ref } = this.offers[key] || {}
-                if (!ref) return null
                 let applied = null
+                const { buyItems, bread, ref } = this.offers[key] || {}
+
+                if (!ref)return null // no offers availeble            
+                
                 switch (key) {
-                    ///////////// soap offer
+                    ///////////// soap offer conditions
                     case 'soap':
                         if (purchase >= buyItems && allBskt['bread']) {
                             try {
@@ -161,6 +166,7 @@ module.exports = () => {
                         }
                         break
                     default:
+                            notify(`[calculatePrice] Sorry, no offer conditions available for ${key}`,0)    
                         applied = false
                     // no offer    
                 }
@@ -169,7 +175,8 @@ module.exports = () => {
 
             try {
                 reduce(basket, (n, item, k, all) => {
-                    const ofr = offers(k, item.purchase, all)
+                    
+                    offers(k, item.purchase, all)
 
                     if (item.price !== undefined) return n
                     const { price, metadata } = this.priceItem({ name: k, item })
@@ -206,7 +213,7 @@ module.exports = () => {
 
                         set: function (v) {
                             if (self._baskets[self.id] === undefined) self._baskets[self.id] = null
-                            if (!Object.entries(v).length) {
+                            if ( !trueObject(v)) {
                                 notify(`your baskets ${v} must be an object`, 0)
                                 return
                             }
@@ -260,6 +267,10 @@ module.exports = () => {
          */
         validEntryValues(basket={}){
             const updatedEntry = {}
+            if(!trueObject(basket)){
+                notify(`[validEntryValues] basket must be a valid object`,true)
+                return null
+            }
             for(let [key, value] of Object.entries(basket)){
                 if(!this.store[key]){
                     notify(`sorry we dont have item: ${key} in our store `,0)

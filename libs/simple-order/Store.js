@@ -1,32 +1,48 @@
-module.exports = ()=>{
-    const store = require('./store.json')
-    const { uid, notify,discountIt } = require('../utils')
-    const {isEmpty,cloneDeep,reduce} = require('lodash') 
+module.exports = function(){
+    
+    //////////////////////
+    // our available store
+    const storeEntries = require('./store.json')
+    //////////////////////
+
+    const { storeConfig, basketConfig, currency } = require('./config')
+   
+    const { uid, notify, discountIt,isType, trueObject } = require('../utils')
+    const { isEmpty, cloneDeep, reduce} = require('lodash')
     return class Store {
-        constructor(opts={}) {
-            /**
-             * [{
-             *  name:'apples', discount:10
-             * }]
-             */
-            this._offerSchema = opts.offerSchema || this.defaultOfferSchema
-            this.applyDiscounts =opts.applyDiscounts || true 
-            this.validOffer()
+
+        /**
+         * @param opts.offerSchema # refer to default structure from `config.js`
+         */
+        constructor(opts = {}, debug) {
+
+            this.debug = debug || null
+            this._offerSchema = (opts ||{}).offerSchema || this.defaultOfferSchema
+            this.applyDiscounts = (opts ||{}).applyDiscounts || true
+            this.validOffer()        
         }
 
-        
+
+
+
         /**
          * our current shop
          * - items are already calculated and offerSchema is applied
          */
         get menu() {
-            if(this._menu) return this._menu
-            // assign {_id}
-            const STORE = reduce(store,(n,el,k)=>{
-                        n[k] = Object.assign({},el,{_id:uid(k)})
-                        return n
-            },{})
-            this._menu = this.calc(STORE)
+            if (this._menu) return this._menu
+
+            try {
+                reduce(this.storeEntries, (n, el, k) => {
+                    n[k] = Object.assign({}, el, { _id: uid(k) })
+                    return n
+                }, {})
+                this._menu = this.calc(cloneDeep(this.storeEntries))
+            } catch (err) {
+                notify({message:'store entry error',err},true)
+            }
+
+
             /**
              * example output:
              * {
@@ -38,17 +54,85 @@ module.exports = ()=>{
              */
             return this._menu
         }
-        
-        get defaultOfferSchema(){
-            return [{
-                name:'apples', discount:10
-            }]
+
+        get defaultOfferSchema() {
+            return { store: storeConfig, basket: basketConfig }
+            // return {
+            //     // global store discounts for each item
+            //     store: [{
+            //         name: 'apples', discount: 10
+            //     }],
+            //     /**
+            //      * - offers for busket purchases
+            //      * - current available offer conditions are set for 'soap', can be fount on `Basket.calculatePrice`
+            //      * 
+            //      * **/
+            //     busket: {
+            //         soap: {
+            //             ref: 'soap', // identify each offer
+            //             buyItems: 5, // if buyItems (val/100)*dis
+            //             bread: { discount: 50 /**50% */ } // receive discount for bread
+            //         }
+            //     }
+            // }
         }
-        
+        get offerSchema() {
+            return this._offerSchema || cloneDeep(this.defaultOfferSchema)
+        }
+
+        get currency() {
+            return currency
+            //return { name: 'USD', symbol: '$' }
+        }
+
         /**
-         * monitor purchase and apply disccount when condition meet
+         * - populate our store with valid entries from `store.json`
          */
-        purchaseOffers(){
+        get storeEntries(){
+            if(this._storeEntries) return this._storeEntries
+            this._storeEntries = this.validStore()
+            return this._storeEntries
+        }
+
+        /**
+         * - check `store.json` entries are valid
+         */
+        validStore(){
+
+            const entries = {}
+            for(let [key,item] of Object.entries(storeEntries)){
+                    if(key.toString().length<2) {
+                        notify(`[validStore], your store entry for ${key} is too short`,0)
+                        continue
+                    }
+
+                    // test minimum required props
+                    if(isType(item.value)!=='number'){
+                        notify(`[validStore], your store entry for ${key} / value doesnt exist or is not a number`,true)
+                        continue
+                    }
+                    if(item.label!==undefined && isType(item.label)!=='string'){
+                        notify(`[validStore], your store entry for ${key} / label must be a string`,true)
+                        continue
+                    }
+
+                    if(item.info!==undefined && isType(item.info)!=='string'){
+                        notify(`[validStore], your store entry for ${key} / info must be a string`,true)
+                        continue
+                    }
+
+                    if(item.discount!==undefined && isType(item.discount)!=='number'){
+                        notify(`[validStore], your store entry for ${key} / discount must be a number`,true)
+                        continue
+                    }
+                    /// we are good here
+                    entries[key] = item;
+            }
+
+            if(!trueObject(entries)){
+                throw('ups, your store.json is either empty or has invalid items')
+            }
+            return entries
 
         }
 
@@ -57,57 +141,51 @@ module.exports = ()=>{
          */
         validOffer() {
             try {
-                if (!isEmpty(this._offerSchema) && !this._offerSchema.length) {
-                    throw('error')
+                if (!isEmpty(this.offerSchema['store']) && !this.offerSchema['store'].length) {
+                    throw ('error')
                 }
             } catch (err) {
-                notify(`provided opts/haveOffers must be an array`,true)
+                notify(`provided opts/haveOffers must be an array`, true)
                 return false
             }
-            const isValid = ()=>{
+            const isValid = () => {
                 // test our props match
                 let ok = null
-                for(let i = 0; i< this._offerSchema.length; i++){
-                    const offer = this._offerSchema[i]
-                    const keys = Object.keys(this.defaultOfferSchema[0])
-                    const valid = keys.filter(z=> offer[z]!==undefined)
+                const stor = this.offerSchema['store']
+                for (let i = 0; i < stor.length; i++) {
+                    const offer = stor[i]
+                    const keys = Object.keys(this.defaultOfferSchema['store'][0])
+                    const valid = keys.filter(z => offer[z] !== undefined)
                     ok = valid.length === keys.length
                 }
                 return ok
             }
-            if(!isValid()) throw(' your offer schema setting is invalid')
-            return true          
+            if (!isValid()) throw (' your offer schema setting is invalid')
+            return true
         }
 
 
-        get offerSchema(){
-            return this._offerSchema || cloneDeep(this.defaultOfferSchema)
-        }
-
-       /**
-        * calculate available discounts from `offerSchema`
-        * @param {*} menu 
-        */
-        calc(menu={}){
+        /**
+         * calculate available discounts from `offerSchema`
+         * @param {*} menu 
+         */
+        calc(menu = {}) {
             // do not calculate 
-            if(!this.applyDiscounts ) return menu
-            const _menu = {}  
-            for (let [key, item] of Object.entries(menu)) { 
+            if (!this.applyDiscounts) return menu
+            const _menu = {}
+            for (let [key, item] of Object.entries(menu)) {
                 // let {lable,value,_id} = item 
-                this.offerSchema.reduce((n, el, i) => {                
-                        if(key===el.name)  {
-                            const origValue = item.value
-                            item.value = discountIt(item.value,el.discount)
-                            // check if disscount differs from original price 
-                            if(origValue!==item.value ) item.discount = el.discount                  
-                        }
+                this.offerSchema['store'].reduce((n, el, i) => {
+                    if (key === el.name) {
+                        const origValue = item.value
+                        item.value = discountIt(item.value, el.discount)
+                        // check if disscount differs from original price 
+                        if (origValue !== item.value) item.discount = el.discount
+                    }
                 }, {})
                 _menu[key] = item
             }
             return _menu
-        }
-        get currency() {
-            return { name: 'USD', symbol: '$' }
         }
     }
 }

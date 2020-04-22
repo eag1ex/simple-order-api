@@ -4,7 +4,7 @@ const util = require('util')
 const base64 = require('base-64')
 const Buffer = require('buffer').Buffer
 const color = require('bash-color')
-const {isNumber} = require('lodash')
+const {isNumber,isObject,isArray, isFunction} = require('lodash')
 /**
  * @prop {*} l any data to print
  * @prop {*} err display as error if set to true
@@ -40,6 +40,14 @@ exports.uid = (str) => {
 
 exports.timestamp = ()=>{
     return new Date().getTime()
+}
+
+exports.isType = (value)=>{
+    return typeof value
+}
+
+exports.trueObject = (value)=>{
+    return !isArray(value) && isObject(value) && !isFunction(value)
 }
 
 exports.discountIt = (val=0, discount=0)=>{

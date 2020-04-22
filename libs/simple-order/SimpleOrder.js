@@ -23,7 +23,7 @@ Output should be to the console and appropriate HTTP requests (with appropriate 
  */
 
 
-module.exports = () => {
+module.exports = function(){
 
     const { notify,timestamp } = require('../utils')
     const {cloneDeep} = require('lodash') 
@@ -31,19 +31,21 @@ module.exports = () => {
     const Basket = require('./Basket')()
    
     return class SimpleOrder extends Store {
-        constructor(opts) {
-            super(opts)
+        constructor(opts,debug) {
+            super(opts, debug)
 
             // collect all client orders here
             this.clientBaskets = {}
-            const id = timestamp()
-            const b = new Basket(id, cloneDeep(this.listStore))
-            
-            const purchase = {soap:2, milk:3,apples:4, bread:2}
-            b.set(purchase)
-            notify({Basket:b.get()})
 
-          //  console.log('listStore', this.listStore)
+            // const id = timestamp()
+            // const b = new Basket(id, cloneDeep(this.listStore),this.offerSchema['basket'], this.debug)
+            
+            // const purchase1 = {tuna:5,milk:2,apples:3}
+            // const purchase2 = {bread:2,soap:2,milk:2,apples:3}
+
+            // b.set({})
+            // notify({Basket:b.get().data})
+
         }
         
         /**
@@ -54,13 +56,20 @@ module.exports = () => {
         }
 
         /**
-         * currently collected orders 
+         * 
+         * @param {*} id provide id in form of date timestamp
+         * @param {*} order provide your desired purchase (per item quantity) example: `{bread:2,soap:2,milk:2,apples:3}`
          */
-        basket(){
-        }
+        order(id = "", order = {}) {
+            id = timestamp()
+            const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
+            const order = b.set(order)
+                .get().data
 
-        order(){
-
+            // with this in mind we could create an update order, caching existing basket
+            // and setting cache clear timeout
+            this.clientBaskets[id] = order
+            return this.clientBaskets[id]
         }
     }
 }
