@@ -47,8 +47,8 @@ module.exports = function(){
             /**
              * example output:
              * {
-                soap: { _id: uid('soap'), lable: 'Soap', value: .65, info:'per item' }, // per item
-                bread: { _id: uid('bread'), lable: 'Soap', value: .8, info:'per item' }, // per item
+                soup: { _id: uid('soup'), lable: 'Soup', value: .65, info:'per item' }, // per item
+                bread: { _id: uid('bread'), lable: 'Bread', value: .8, info:'per item' }, // per item
                 milk: { _id: uid('milk'), lable: 'Milk', value: 1.3, info:'per item' }, // per item
                 apples: { _id: uid('apples'), lable: 'Apples', value: 1, info:'per bag' }, // per bag
             }
@@ -65,12 +65,12 @@ module.exports = function(){
             //     }],
             //     /**
             //      * - offers for busket purchases
-            //      * - current available offer conditions are set for 'soap', can be fount on `Basket.calculatePrice`
+            //      * - current available offer conditions are set for 'soup', can be fount on `Basket.calculatePrice`
             //      * 
             //      * **/
             //     busket: {
-            //         soap: {
-            //             ref: 'soap', // identify each offer
+            //         soup: {
+            //             ref: 'soup', // identify each offer
             //             buyItems: 5, // if buyItems (val/100)*dis
             //             bread: { discount: 50 /**50% */ } // receive discount for bread
             //         }

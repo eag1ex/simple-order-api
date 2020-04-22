@@ -41,7 +41,7 @@ module.exports = function () {
             // const b = new Basket(id, cloneDeep(this.listStore),this.offerSchema['basket'], this.debug)
 
             // const purchase1 = {tuna:5,milk:2,apples:3}
-            // const purchase2 = {bread:2,soap:2,milk:2,apples:3}
+            // const purchase2 = {bread:2,soup:2,milk:2,apples:3}
 
             // b.set({})
             // notify({Basket:b.get().data})
@@ -59,7 +59,7 @@ module.exports = function () {
          * - handle validation of the order in case there are issues with basket, or the store is empty
          * - return valid order
          * @param {*} id provide id in form of date timestamp
-         * @param {*} order provide your desired purchase (per item quantity) example: `{bread:2,soap:2,milk:2,apples:3}`
+         * @param {*} order provide your desired purchase (per item quantity) example: `{bread:2,soup:2,milk:2,apples:3}`
          * 
          */
         order(id = "", order = {}) {

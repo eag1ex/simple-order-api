@@ -192,9 +192,9 @@ module.exports = function(){
             return {
                 // Buy 2 tins of soup and get a loaf of bread for half price
                 // offer only applies when you buy `bread`
-                soap: {
+                soup: {
                     message:'Buy 2 or more tins of soup and get a loaf of bread for half price',
-                    ref:'soapSpecial', // identify each offer
+                    ref:'soupSpecial', // identify each offer
                     buyItems: 5, // if buyItems (val/100)*dis
                     bread: { discount: 50 /**50% */ } // receive discount for bread
                 }
@@ -202,7 +202,7 @@ module.exports = function(){
         }
         /**
          * 
-         * @params {*} { name, item } name: example `soap`, item: is the items basket values
+         * @params {*} { name, item } name: example `soup`, item: is the items basket values
          * @param {*} offers # available offers if, must return object, example:{discount}
          */
         priceItem({ name, item }, offers = null) {
@@ -251,9 +251,9 @@ module.exports = function(){
          * @param {*} basket property value
          * - example:
          *   `
-               { soap:
+               { soup:
                      purchase: 2,
-                     metadata: { lable: 'Soap', info: 'per item', _id: 'c29hcA' } 
+                     metadata: { lable: 'Soup', info: 'per item', _id: 'c29hcA' } 
                 }`
          */
         calculatePrice(basket = {}, id) {
@@ -270,8 +270,8 @@ module.exports = function(){
                 if (!ref)return null // no offers availeble            
                 
                 switch (key) {
-                    ///////////// soap offer conditions
-                    case 'soap':
+                    ///////////// soup offer conditions
+                    case 'soup':
                         if (purchase >= buyItems && allBskt['bread']) {
                             try {
                                 console.log('')

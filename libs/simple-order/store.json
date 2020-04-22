@@ -1,5 +1,5 @@
 {
-  "soap": { "lable": "Soap", "value": 0.65, "info": "per item" },
+  "soup": { "lable": "Soup", "value": 0.65, "info": "per item" },
   "bread": { "lable": "Bread", "value": 0.8, "info": "per item" },
   "milk": { "lable": "Milk", "value": 1.3, "info": "per item" },
   "apples": { "lable": "Apples", "value": 1, "info": "per bag" }
