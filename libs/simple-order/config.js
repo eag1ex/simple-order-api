@@ -1,19 +1,20 @@
 
 
 /**
- * - SimpleOrder config file, for setting up offers and discounts
+ * SimpleOrder config file, for setting up offers and discounts
  * - settings only work agains available items in our `store.json`
+ * - please note if applied `discount` directly to `store.json` it will priority 
  */
-
 
 
 /**
  * global store discounts for each item
  */
 exports.storeConfig = {
-   // maxPurchase:1000, // allowed purchase limit // todo
+   // TODO maxPurchase:1000, // allowed purchase limit 
     store:[{
-            name: 'apples', discount: 20 // percentage number
+            // NOTE if you set discount in `./simple-order/store.json` it will take priority over this configuration, nice! 
+            name: 'apples', discount: 15 // percentage number
     }]
 }
 

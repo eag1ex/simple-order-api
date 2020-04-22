@@ -21,7 +21,7 @@ module.exports = function () {
 
             // collect all client orders here
             this.clientBaskets = {}
-
+            this.clientBasketModels = {} // keep track of basket objects for munipulation
         }
 
         /**
@@ -61,11 +61,13 @@ module.exports = function () {
                 })
             }
 
+            // NOTE this maybe a memory overkill
+            // this.clientBasketModels = [id] = b
 
             // with this in mind we could create an update order, caching existing basket
             // and setting cache clear timeout
             this.clientBaskets[id] = o
-            
+
             const noAvailable = this.notAvailable(b) ||{}
             const currency =  this.currency.name
             return {
@@ -85,11 +87,12 @@ module.exports = function () {
          * - update existing order
          */
         // updateOrder(id){
+                // this.clientBasketModels[id] etc
         //     // this.clientBaskets[id] etc
         // }
         
 
-        
+
         /**
          * - get available Store
          */

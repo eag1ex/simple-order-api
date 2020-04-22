@@ -1,3 +1,12 @@
+
+
+/**
+ * our `Store`
+ * - keeps record of available store items initialy setup in `./simple-order/store.json`
+ * `store.json`: you can add new items to the store keeping in mind of required schema - validation is performed via `validateStore()` 
+ * 
+ * you can check if store is open with `storeOpen()` and list any available items via `menu`
+ */
 module.exports = function(){
     
     //////////////////////
@@ -9,7 +18,7 @@ module.exports = function(){
     const { storeConfig, basketConfig, currency } = require('./config')
    
     const { uid, notify, discountIt,isType, trueObject } = require('../utils')
-    const { isEmpty, cloneDeep, reduce} = require('lodash')
+    const { isEmpty, cloneDeep, reduce,isNaN} = require('lodash')
     return class Store {
 
         /**
@@ -36,9 +45,14 @@ module.exports = function(){
                     n[k] = Object.assign({}, el, { _id: uid(k) })
                     return n
                 }, {})
-                this._menu = this.calc(cloneDeep(this.storeEntries))
+
+                // calculate store offers
+                this._menu = this.calc(
+                    cloneDeep(this.storeEntries)
+                )
+
             } catch (err) {
-                notify({message:'store entry error',err},true)
+                notify({ message: 'store entry error', err }, true)
             }
 
 
@@ -52,6 +66,20 @@ module.exports = function(){
             }
              */
             return this._menu
+        }
+
+        /**
+         * * check if the store is open
+         */
+        storeOpen(){
+            try{
+                this.validateStore()
+                this.lastStoreError = null
+                return true
+            }catch(err){
+                notify(err,true)
+                return null
+            }
         }
 
         get defaultOfferSchema() {
@@ -75,6 +103,7 @@ module.exports = function(){
             //     }
             // }
         }
+
         get offerSchema() {
             return this._offerSchema || cloneDeep(this.defaultOfferSchema)
         }
@@ -83,35 +112,22 @@ module.exports = function(){
             return currency
             //return { name: 'USD', symbol: '$' }
         }
-
         /**
          * - populate our store with valid entries from `store.json`
          */
         get storeEntries(){
             
             if(this._storeEntries) return this._storeEntries
-            this._storeEntries = this.validStore()
+            this._storeEntries = this.validateStore()
             return this._storeEntries
         }
 
-        /**
-         * * check if the store is open
-         */
-        storeOpen(){
-            try{
-                this.validStore()
-                this.lastStoreError = null
-                return true
-            }catch(err){
-                notify(err,true)
-                return null
-            }
-        }
+ 
 
         /**
          * - check `store.json` entries are valid
          */
-        validStore(){
+        validateStore(){
 
             const throwError = ()=>{
                 this.lastStoreError = errorMessages['006'].message ///'Sorry, our store is out of stock!'
@@ -122,27 +138,27 @@ module.exports = function(){
             const entries = {}
             for(let [key,item] of Object.entries(storeEntries)){
                     if(key.toString().length<2) {
-                        notify(`[validStore], your store entry for ${key} is too short`,0)
+                        notify(`[validateStore], your store entry for ${key} is too short`,0)
                         continue
                     }
 
                     // test minimum required props
                     if(isType(item.value)!=='number'){
-                        notify(`[validStore], your store entry for ${key} / value doesnt exist or is not a number`,true)
+                        notify(`[validateStore], your store entry for ${key} / value doesnt exist or is not a number`,true)
                         continue
                     }
                     if(item.label!==undefined && isType(item.label)!=='string'){
-                        notify(`[validStore], your store entry for ${key} / label must be a string`,true)
+                        notify(`[validateStore], your store entry for ${key} / label must be a string`,true)
                         continue
                     }
 
                     if(item.info!==undefined && isType(item.info)!=='string'){
-                        notify(`[validStore], your store entry for ${key} / info must be a string`,true)
+                        notify(`[validateStore], your store entry for ${key} / info must be a string`,true)
                         continue
                     }
 
                     if(item.discount!==undefined && isType(item.discount)!=='number'){
-                        notify(`[validStore], your store entry for ${key} / discount must be a number`,true)
+                        notify(`[validateStore], your store entry for ${key} / discount must be a number`,true)
                         continue
                     }
                     /// we are good here
@@ -195,13 +211,17 @@ module.exports = function(){
             if (!this.applyStoreDiscounts) return menu
             const _menu = {}
             for (let [key, item] of Object.entries(menu)) {
-                // let {lable,value,_id} = item 
+                let {lable,value,discount} = item ||{} 
                 this.offerSchema['store'].reduce((n, el, i) => {
                     if (key === el.name) {
                         const origValue = item.value
-                        item.value = discountIt(item.value, el.discount)
+
+                        // store discount takes priority over `config.js` `storeConfig` discount
+                        const discnt = (discount!==undefined && discount>0) ? discount: el.discount
+                        item.value = discountIt(item.value, discnt)
+                        
                         // check if disscount differs from original price 
-                        if (origValue !== item.value) item.discount = el.discount
+                        if (origValue !== item.value) item.discount = discnt
                     }
                 }, {})
                 _menu[key] = item
