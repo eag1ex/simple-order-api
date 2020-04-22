@@ -26,6 +26,8 @@ module.exports = function(){
         }
 
 
+        // SECTION  user calling methods
+
         /**
          * @param {*} value provide value agains our id
          */
@@ -155,6 +157,8 @@ module.exports = function(){
                 return 0
             }
         }
+        // SECTION  user calling methods
+
         
         get config() {
             return {

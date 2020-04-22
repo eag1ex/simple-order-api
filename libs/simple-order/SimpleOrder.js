@@ -125,7 +125,12 @@ module.exports = function () {
                 return null
             }
 
-            return { [name]: {message},error:true }
+            return {
+                [name]: {
+                    message,
+                    error: true
+                }
+            }
         }
 
         /**
@@ -135,6 +140,7 @@ module.exports = function () {
         basketMeta(basket){
             if(!basket) return {}
             const extraMeta = {
+                total:basket.total(),
                 subtotal: basket.subtotal(),
                 discounts: basket.getDisccounts(),
                 offers: basket.getOffers()
