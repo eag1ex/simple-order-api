@@ -1,4 +1,4 @@
-
+`use strict`
 
 /**
  * our `Store`
@@ -7,8 +7,8 @@
  * 
  * you can check if store is open with `storeOpen()` and list any available items via `menu`
  */
-module.exports = function(){
-    
+module.exports = function () {
+
     //////////////////////
     // our available store
     const storeEntries = require('./store.json')
@@ -16,9 +16,9 @@ module.exports = function(){
     //////////////////////
 
     const { storeConfig, basketConfig, currency } = require('./config')
-   
-    const { uid, notify, discountIt,isType, trueObject } = require('../utils')
-    const { isEmpty, cloneDeep, reduce,isNaN} = require('lodash')
+
+    const { uid, notify, discountIt, isType, trueObject } = require('../utils')
+    const { isEmpty, cloneDeep, reduce, isNaN } = require('lodash')
     return class Store {
 
         /**
@@ -27,9 +27,9 @@ module.exports = function(){
         constructor(opts = {}, debug) {
             this.lastStoreError = null // store our last store error
             this.debug = debug || null
-            this._offerSchema = (opts ||{}).offerSchema || this.defaultOfferSchema
-            this.applyStoreDiscounts = (opts ||{}).applyStoreDiscounts || true
-            this.validOffer()        
+            this._offerSchema = (opts || {}).offerSchema || this.defaultOfferSchema
+            this.applyStoreDiscounts = (opts || {}).applyStoreDiscounts || true
+            this.validOffer()
         }
 
 
@@ -71,13 +71,13 @@ module.exports = function(){
         /**
          * * check if the store is open
          */
-        storeOpen(){
-            try{
+        storeOpen() {
+            try {
                 this.validateStore()
                 this.lastStoreError = null
                 return true
-            }catch(err){
-                notify(err,true)
+            } catch (err) {
+                notify(err, true)
                 return null
             }
         }
@@ -115,59 +115,65 @@ module.exports = function(){
         /**
          * - populate our store with valid entries from `store.json`
          */
-        get storeEntries(){
-            
-            if(this._storeEntries) return this._storeEntries
+        get storeEntries() {
+
+            if (this._storeEntries) return this._storeEntries
             this._storeEntries = this.validateStore()
             return this._storeEntries
         }
 
- 
+
 
         /**
          * - check `store.json` entries are valid
          */
-        validateStore(){
+        validateStore() {
 
-            const throwError = ()=>{
+            const throwError = () => {
                 this.lastStoreError = errorMessages['006'].message ///'Sorry, our store is out of stock!'
-                throw('ups, your store.json is either empty or has invalid items')
+                throw ('ups, your store.json is either empty or has invalid items')
             }
-            if(isEmpty(storeEntries) || !trueObject(storeEntries)) throwError()
-            
+            if (isEmpty(storeEntries) || !trueObject(storeEntries)) throwError()
+
             const entries = {}
-            for(let [key,item] of Object.entries(storeEntries)){
-                    if(key.toString().length<2) {
-                        notify(`[validateStore], your store entry for ${key} is too short`,0)
-                        continue
-                    }
+            for (let [key, item] of Object.entries(storeEntries)) {
+                if (key.toString().length < 2) {
 
-                    // test minimum required props
-                    if(isType(item.value)!=='number'){
-                        notify(`[validateStore], your store entry for ${key} / value doesnt exist or is not a number`,true)
-                        continue
-                    }
-                    if(item.label!==undefined && isType(item.label)!=='string'){
-                        notify(`[validateStore], your store entry for ${key} / label must be a string`,true)
-                        continue
-                    }
+                    if (this.debug) notify(`[validateStore], your store entry for ${key} is too short`, 0)
 
-                    if(item.info!==undefined && isType(item.info)!=='string'){
-                        notify(`[validateStore], your store entry for ${key} / info must be a string`,true)
-                        continue
-                    }
+                    continue
+                }
 
-                    if(item.discount!==undefined && isType(item.discount)!=='number'){
-                        notify(`[validateStore], your store entry for ${key} / discount must be a number`,true)
-                        continue
-                    }
-                    /// we are good here
-                    entries[key] = item;
+                // test minimum required props
+                if (isType(item.value) !== 'number') {
+                    if (this.debug) notify(`[validateStore], your store entry for ${key} / value doesnt exist or is not a number`, true)
+
+                    continue
+                }
+                if (item.label !== undefined && isType(item.label) !== 'string') {
+                    if (this.debug) notify(`[validateStore], your store entry for ${key} / label must be a string`, true)
+
+                    continue
+                }
+
+                if (item.info !== undefined && isType(item.info) !== 'string') {
+                    if (this.debug) notify(`[validateStore], your store entry for ${key} / info must be a string`, true)
+
+                    continue
+                }
+
+                if (item.discount !== undefined && isType(item.discount) !== 'number') {
+                    if (this.debug) notify(`[validateStore], your store entry for ${key} / discount must be a number`, true)
+
+                    continue
+                }
+                /// we are good here
+                entries[key] = item;
             }
 
-            if(!trueObject(entries)){
+            if (!trueObject(entries)) {
                 ///'Sorry, our store is out of stock!'
-               throwError()
+                throwError()
             }
             return entries
 
@@ -211,15 +217,15 @@ module.exports = function(){
             if (!this.applyStoreDiscounts) return menu
             const _menu = {}
             for (let [key, item] of Object.entries(menu)) {
-                let {lable,value,discount} = item ||{} 
+                let { lable, value, discount } = item || {}
                 this.offerSchema['store'].reduce((n, el, i) => {
                     if (key === el.name) {
                         const origValue = item.value
 
                         // store discount takes priority over `config.js` `storeConfig` discount
-                        const discnt = (discount!==undefined && discount>0) ? discount: el.discount
+                        const discnt = (discount !== undefined && discount > 0) ? discount : el.discount
                         item.value = discountIt(item.value, discnt)
-                        
+
                         // check if disscount differs from original price 
                         if (origValue !== item.value) item.discount = discnt
                     }

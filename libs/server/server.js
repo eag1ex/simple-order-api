@@ -1,5 +1,4 @@
-
-
+`use strict`
 const DEBUG = true
 const errorMessages = require('../errors')
 const { notify } = require('../utils')

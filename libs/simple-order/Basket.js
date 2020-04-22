@@ -1,4 +1,4 @@
-
+`use strict`
 
 /**
  * * Basket:  generate Basket model for calculating orders
@@ -170,7 +170,6 @@ module.exports = function(){
             const basket = this.baskets[this.id]['basket']
             
             for (let [k,item] of Object.entries(basket)){
-                console.log()
                 sub = sub + (item.metadata.value) * item.purchase
             }
             if(sub>=0) return Number(parseFloat(sub).toFixed(2));         
@@ -298,7 +297,7 @@ module.exports = function(){
                     case 'soup':
                         if (purchase >= buyItems && allBskt['bread']) {
                             try {
-                                console.log('')
+                              
                                 const { price, metadata } = this.priceItem({ name: 'bread', item: allBskt['bread'] }, bread)
                                 if(!metadata)  throw('metadata is not available on priceItem')
                                 // check if store has global discount and use that instead
@@ -307,7 +306,7 @@ module.exports = function(){
                                 allBskt['bread']['price'] = price
                                 allBskt['bread']['metadata'].discount = discount
                                 allBskt['bread']['metadata'].offer = ref
-                                notify({ message: `discount applied for bread`, bread: allBskt['bread'], id })
+                             if(this.debug)  notify({ message: `special offer/discounts applied for bread`, bread: allBskt['bread'], id })
                                 applied = true
                             } catch (err) {
                                 notify({message:"[calculatePrice] error",err},true)
@@ -376,7 +375,7 @@ module.exports = function(){
                             v = self.withStoreMetadata(v,self.id)
                             v = self.calculatePrice(v, self.id) // and existing offers                       
 
-                            notify(`basket id:${self.id} updated`)
+                            if(self.debug) notify(`basket id:${self.id} updated`)
                             self._baskets[self.id] = v
                         }
                     }

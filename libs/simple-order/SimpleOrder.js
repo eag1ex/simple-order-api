@@ -1,4 +1,4 @@
-
+`use strict`
 
 /**
  * - SimpleOrder Store application
