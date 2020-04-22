@@ -9,6 +9,7 @@
  * - I have implemented an `errorMessages` handler for displaying relevant messages, it applies to server as well, also there a `debug` option when enabled will also show more critical errors < good fore debuging
  */
 module.exports = function () {
+    const moment = require('moment')
     const errorMessages = require('../errors')
     const { notify, timestamp } = require('../utils')
     const { cloneDeep, isEmpty,isNumber, reduce,last } = require('lodash')
@@ -16,6 +17,7 @@ module.exports = function () {
     const Basket = require('./Basket')()
 
     return class SimpleOrder extends Store {
+
         constructor(opts, debug) {
             super(opts, debug)
 
@@ -32,6 +34,7 @@ module.exports = function () {
          * 
          */
         order(id = "", order = {}) {
+            // validate
             if(!this.storeOpen()){
                 return { error: true, ...errorMessages['006']}
             }
@@ -41,6 +44,10 @@ module.exports = function () {
             if (isEmpty(this.offerSchema['basket'])) {
                 return { error: true, ...errorMessages['002']}
             }
+
+            /**
+             * each Basket is assigned an id timestamp
+             */
             //id = timestamp()
             id = id.toString()
             const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
@@ -51,8 +58,7 @@ module.exports = function () {
                 return { error: true, ...errorMessages['003'] }
             }
 
-            const extraMeta = this.basketMeta(b)
-           
+            const extraMeta = this.basketMeta(b)      
              // basket extra meta information 
             if(this.debug && !isEmpty(extraMeta)){
                 notify({
@@ -61,11 +67,9 @@ module.exports = function () {
                 })
             }
 
-            // NOTE this maybe a memory overkill
+            // with this in mind we could create and update order, caching existing baskets
+            // NOTE `clientBasketModels` maybe a memory overkill    
             // this.clientBasketModels = [id] = b
-
-            // with this in mind we could create an update order, caching existing basket
-            // and setting cache clear timeout
             this.clientBaskets[id] = o
 
             const noAvailable = this.notAvailable(b) ||{}
@@ -92,7 +96,6 @@ module.exports = function () {
         // }
         
 
-
         /**
          * - get available Store
          */
@@ -100,6 +103,48 @@ module.exports = function () {
             return this.menu
         }
 
+
+
+
+        /**
+         * - format Basket extra meta data for output
+         * @param {*} basket 
+         */
+        basketMeta(basket) {
+            if (!basket) return {}
+
+            const extraMeta = {
+                total: basket.total(),
+                subtotal: basket.subtotal(),
+                discounts: basket.priceDifference(),
+                //basket.getDisccounts(),
+                offers: basket.getOffers()
+            }
+
+            // make date from id timestamp
+            let date = moment(Number(basket.id))
+            if (date.isValid()) {
+                extraMeta.date = date.format()
+            }
+            else notify(`[basketMeta] id/timestamp is invalid for date`, 0)
+
+
+            const b = reduce(extraMeta, (n, el, k) => {
+                if (isNumber(el)) {
+                    if (k !== 'discounts') n[k] = `${this.currency.symbol}${el}`
+                    else n[k] = `${el}%`
+                }
+                else if (el !== undefined) {
+                    n[k] = el
+                }
+                return n
+            }, {})
+            if (isEmpty(b)) {
+                if (this.debug) notify(`[basketMeta] no extra meta available`, 0)
+                return {}
+            }
+            return b
+        }
 
         /**
          * - provide message for when item your are requesting is not available in the Backet
@@ -120,38 +165,6 @@ module.exports = function () {
                 }
             }
         }
-
-        /**
-         * - format Basket extra meta data for output
-         * @param {*} basket 
-         */
-        basketMeta(basket){
-            if(!basket) return {}
-            const extraMeta = {
-                total:basket.total(),
-                subtotal: basket.subtotal(),
-                discounts: basket.priceDifference(),  
-                //basket.getDisccounts(),
-                offers: basket.getOffers()
-            }
-
-           const b= reduce(extraMeta,(n,el,k)=>{
-                if(isNumber(el)){
-                    if(k!=='discounts')  n[k] = `${this.currency.symbol}${el}`
-                    else n[k] = `${el}%`
-                }
-                else if(el!==undefined){
-                    n[k] = el
-                }
-                return n
-           },{})
-           if(isEmpty(b)) {
-               if(this.debug) notify(`[basketMeta] no extra meta available`,0)
-            return {}
-           }
-           return b
-        }
-
 
         /**
          * - calculate total on the basket

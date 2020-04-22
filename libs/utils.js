@@ -69,5 +69,5 @@ exports.errorMessages = (messages) => {
 }
 
 exports.numDate = (num)=>{
-    return new Date(num).getTime() >1
+    return new Date(Number(num)).getTime() >1
 }

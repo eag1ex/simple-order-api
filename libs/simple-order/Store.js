@@ -22,7 +22,7 @@ module.exports = function () {
     return class Store {
 
         /**
-         * @param opts.offerSchema # refer to default structure from `config.js`
+         * @param opts.offerSchema #  if not settings applied using `defaultOfferSchema= { store: storeConfig['store'], basket: basketConfig }`, refer to default structure from `./simple-order/config.js`
          */
         constructor(opts = {}, debug) {
             this.lastStoreError = null // store our last store error

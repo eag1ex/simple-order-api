@@ -33,7 +33,8 @@
           [ { ref: 'soupSpecial',
               message:
               'Buy 2 or more tins of soup and get a loaf of bread for half price' }
-    ],
+        ],
+         date: '2020-04-23T00:51:24+07:00',
         basket:
           { bread:
             { purchase: 5,
@@ -85,6 +86,7 @@ function simpleExample2(){
      subtotal: '$7.4',
      discounts: '2.19%', << calculated discount based on `subtotal` and `total`
      offers: 'No offers available',
+     date: '2020-04-23T00:51:24+07:00',
      basket:
       { bread:
          { purchase: 5,
