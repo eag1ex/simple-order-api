@@ -1,6 +1,4 @@
 ### Simple Order API
-
-* By `EagleX`
 #### - [ Developed by Eaglex ](http://eaglex.net)
 
 ##### LICENSE
