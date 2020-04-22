@@ -13,10 +13,14 @@ module.exports = function (expressApp) {
             this.simpleOrder = new SimpleOrder({}, this.debug)
         }
 
+
+
         order(req, res) {
             let quote= req.query || {}
+
             console.log('callin on order', quote)
 
+            /// SECTION handle validation of requests
             if (isEmpty(quote)) {
                 return res.status(200).json({ error: true, ...errorMessages['004'] });
             }
@@ -27,15 +31,21 @@ module.exports = function (expressApp) {
             if(!numDate(id) && id){
                 return res.status(200).json({ error: true, ...errorMessages['005'] });
             }
+            /// !SECTION 
+
             const o = this.simpleOrder.order(id,quote)
 
             if (o.error) {
                 return res.status(200).json({ ...o });
             }
-
             // this.simpleOrder.order(id = "", order = {}) {
-            return res.status(200).json({ success: true, message: 'works', code: 200 });
+            return res.status(200).json({ success: true, response:o, code: 200 });
         }
+
+
+        // get examleOrders(){
+
+        // }
     }
 
 }

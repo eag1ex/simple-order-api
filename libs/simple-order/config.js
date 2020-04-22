@@ -22,8 +22,9 @@ exports.storeConfig = [{
 * **/
 exports.basketConfig = {
     soap: {
-        ref: 'soap', // identify each offer
-        buyItems: 5, // if buyItems (val/100)*dis
+        ref: 'soapSpecial', // identify each offer
+        message:'Buy 2 or more tins of soup and get a loaf of bread for half price',
+        buyItems: 2, // if buyItems (val/100)*dis
         bread: { discount: 50 /**50% */ } // receive discount for bread
     }
 }

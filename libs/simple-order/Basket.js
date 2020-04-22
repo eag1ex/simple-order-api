@@ -22,7 +22,7 @@ module.exports = function(){
             this.baskets = {} // generate baskets and assign purchase offers
             this._baskets = {}
             this.genBasket()
-            this.storeErrors = [] // store generated errors
+            this.basketErrors = [/**{name,message:msg} */] // store generated errors //
         }
 
 
@@ -53,9 +53,108 @@ module.exports = function(){
                 return null
             }
             this.data = this.baskets[id]['basket']
-            return this //this.baskets[id]['basket']
+            return this
         }
 
+        /**
+         * - search thru basket to see if any discounts have been applied
+         * - ignore discounts that came thru special offers, as per `./config.js`
+         */
+        getDisccounts() {
+            if (!this.id) return null
+            let sub = 0
+            const basket = this.baskets[this.id]['basket']
+            const discounts = []
+            try {
+                // not including offers, just store discounts
+                for (let [k, item] of Object.entries(basket)) {
+                    if (item.metadata.discount !== undefined && item.metadata.offer===undefined) discounts.push(item.metadata.discount)
+
+                }
+            } catch (err) {
+                notify(err, true)
+            }
+
+            if (!discounts.length) return null
+            return Math.max.apply(null, discounts)
+        }
+
+        /**
+         * - check available offers, search thru each ready basket and match by `offers...{ref}`
+         * - ignore global store discounts as per `./config.js`
+         * - when no offers available set different message
+         */   
+        getOffers() {
+            if (!this.id) return null
+            let sub = 0
+            const basket = this.baskets[this.id]['basket']
+            let offers = []
+
+            try {
+                /**
+                 * - search thru entire offers until we find matching ref
+                 * @param {*} ref 
+                 */
+                const findRef = (ref) => {
+                    const refs = []
+                    for (let [k, promo] of Object.entries(this.offers)) {
+                        if (promo.ref === ref) refs.push({ ref, message: promo.message })
+                    }
+                    return refs
+                }
+
+                // only including offers not store discounts
+                for (let [k, item] of Object.entries(basket)) {
+                    if (item.metadata.offer !== undefined && item.metadata.discount!==undefined) {
+                        const found = findRef(item.metadata.offer)
+                        if (found.length) offers = [].concat(offers, found)
+
+                    }
+                }
+            } catch (err) {
+                notify(err, true)
+            }
+            const o = offers.filter(z => !!z)
+            if (!o.length) return "No offers available"
+            return o
+        }
+        /**
+         * - get subtotal before any discount
+         */
+        subtotal(){
+            if(!this.id) return null
+            let sub = 0
+            const basket = this.baskets[this.id]['basket']
+            
+            for (let [k,item] of Object.entries(basket)){
+                sub = sub + (item.metadata.value) *item.purchase
+            }
+            
+            if(sub>=0) return Number(parseFloat(sub).toFixed(2));         
+            else{
+                if(this.debug) notify(`[subtotal] ups your subtotal is wrong..`,true)
+                return 0
+            }
+           
+        }
+
+        /**
+         * - get total after any offer/discount applied
+         */
+        total(){    
+            if(!this.id) return null
+            const basket = this.baskets[this.id]['basket']
+            let total = 0
+            for (let [k,item] of Object.entries(basket)){
+                total = total + item.price
+            }
+
+            if(total>=0) return Number(parseFloat(total).toFixed(2));         
+            else{
+                if(this.debug) notify(`[total] ups your total is wrong..`,true)
+                return 0
+            }
+        }
         
         get config() {
             return {
@@ -72,7 +171,8 @@ module.exports = function(){
                 // Buy 2 tins of soup and get a loaf of bread for half price
                 // offer only applies when you buy `bread`
                 soap: {
-                    ref:'soap', // identify each offer
+                    message:'Buy 2 or more tins of soup and get a loaf of bread for half price',
+                    ref:'soapSpecial', // identify each offer
                     buyItems: 5, // if buyItems (val/100)*dis
                     bread: { discount: 50 /**50% */ } // receive discount for bread
                 }
@@ -87,7 +187,7 @@ module.exports = function(){
             if(!this.store[name]) {
                 const msg = `[priceItem] cannot price the item because it does not exist`
                 notify(msg, 0)
-                this.storeErrors.push(msg)
+                this.basketErrors.push({name,message:msg})
                 return null
             }
             // NOTE in case we have discount set directly on the store, use that
@@ -160,6 +260,7 @@ module.exports = function(){
 
                                 allBskt['bread']['price'] = price
                                 allBskt['bread']['metadata'].discount = discount
+                                allBskt['bread']['metadata'].offer = ref
                                 notify({ message: `discount applied for bread`, bread: allBskt['bread'], id })
                                 applied = true
                             } catch (err) {
@@ -278,7 +379,7 @@ module.exports = function(){
                 if(!this.store[key]){
                     const msg = `sorry we dont have item: ${key} in our store`
                     notify(msg,0)
-                    this.storeErrors.push(msg)
+                    this.basketErrors.push({name:key,message:msg})
                     continue
                 }
                 updatedEntry[key] = value
