@@ -19,7 +19,7 @@ exports.storeConfig = {
 
 
 /**
-* - offers for busket purchases
+* - offers for basket purchases
 * - current available offer conditions are set for 'soup', can be fount on `Basket.calculatePrice`
 * 
 * **/

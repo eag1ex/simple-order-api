@@ -24,8 +24,6 @@ module.exports = function(){
         }
 
 
-
-
         /**
          * our current shop
          * - items are already calculated and offerSchema is applied
@@ -64,11 +62,11 @@ module.exports = function(){
             //         name: 'apples', discount: 10
             //     }],
             //     /**
-            //      * - offers for busket purchases
+            //      * - offers for basket purchases
             //      * - current available offer conditions are set for 'soup', can be fount on `Basket.calculatePrice`
             //      * 
             //      * **/
-            //     busket: {
+            //     basket: {
             //         soup: {
             //             ref: 'soup', // identify each offer
             //             buyItems: 5, // if buyItems (val/100)*dis

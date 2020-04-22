@@ -1,13 +1,35 @@
 
 
 /**
- * * Basket
- * - generate Basket model for calculating orders
+ * * Basket:  generate Basket model for calculating orders
+ * - Each Basket is generated for each order over and over, the `Store` settings are imported via `SimpleOrder`
+ * - You can create new offers depending on the items in store and the offers, the logic for this is in `calculatePrice()` inside `offers()`
+ * 
+ * example:
+ `
+            const b = new Basket(id, menu, basketConfig, debug)
+            const o = b.set(order)
+                        .get().data 
+            // user operators            
+            o.getDisccounts() // returns max aplied discount amount of all items
+            o.priceDifference() // returns percentage from tota and subtotal > amount of disscount applied
+            o.getOffers() // returns applied offers to the current basket, or default message 
+            o.subtotal() // initial price before any discount applied
+            o.total() // price after discount applied
+ `
+ * 
  */
 module.exports = function(){
     const { isEmpty, isString,reduce,cloneDeep,isNumber,isNaN } = require('lodash')
     const { notify, discountIt, trueObject } = require('../utils')
     return class Basket {
+        /**
+         * 
+         * @param {*} id 
+         * @param {*} store # calculated / valid Store menu 
+         * @param {*} offers # optional offers if any, default `basketConfig` is imported from `./simple-order/config.js`
+         * @param {*} debug :)
+         */
         constructor(id, store = {}, offers=null, debug) {
             if (isEmpty(store)) throw ('store cannot be empty')
             if (!trueObject(store)) throw ('store must be an object')
@@ -16,12 +38,10 @@ module.exports = function(){
             this.debug = debug
             this.data = null // dynamicly changing data access variable
             this.id = id.toString();
-            this.offers = offers || this.defaultOffers
-
+            this.offers = offers || this.defaultOffers ||{}
             this.store = store
             this.baskets = {} // generate baskets and assign purchase offers
             this._baskets = {}
-            this.genBasket()
             this.basketErrors = [/**{name,message:msg} */] // store generated errors //
         }
 
@@ -30,13 +50,14 @@ module.exports = function(){
 
         /**
          * @param {*} value provide value agains our id
+         * - generates new basket getter/setter and sets new values
          */
         set(value) {
             this.data = null
             this.genBasket()
 
             if (!this.baskets[this.id]) {
-                notify(`[item] busket ${id} does not exist, see the store for avialable lists`, true)
+                notify(`[item] basket ${id} does not exist, see the store for avialable lists`, true)
                 return null
             }
 
@@ -46,6 +67,7 @@ module.exports = function(){
         
         /**
          * @param {*} id optional id, using global this.id
+         * return with `this.data`
          */
         get(id = '') {
             this.data = null
@@ -246,6 +268,7 @@ module.exports = function(){
             
             return item
         }
+        
         /**
          * @param {*} k basket key
          * @param {*} basket property value
@@ -258,6 +281,7 @@ module.exports = function(){
          */
         calculatePrice(basket = {}, id) {
             if (!basket) throw ('basket must be set')
+
             /**
              * identify what offer and do custom munipulation
              * - also updates the `all` object state
@@ -352,7 +376,7 @@ module.exports = function(){
                             v = self.withStoreMetadata(v,self.id)
                             v = self.calculatePrice(v, self.id) // and existing offers                       
 
-                            notify(`busket id:${self.id} updated`)
+                            notify(`basket id:${self.id} updated`)
                             self._baskets[self.id] = v
                         }
                     }
@@ -366,7 +390,7 @@ module.exports = function(){
         }
 
         /**
-         * - reconstruct busket to include Store metadata
+         * - reconstruct basket to include Store metadata
         * @param {*} basket
         */
         withStoreMetadata(basket,id){

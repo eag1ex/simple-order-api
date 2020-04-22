@@ -1,28 +1,13 @@
+
+
 /**
- * The goods that can be purchased, which are all priced in $, are:
-
-Soup – 65p per tin
-Bread – 80p per loaf
-Milk – $1.30 per bottle
-Apples – $1.00 per bag
-Current special offers are:
-
-Apples have 10% off their normal price this week
-Buy 2 tins of soup and get a loaf of bread for half price
-The program should accept a list of items (with a date) in the basket and output the subtotal, the special offer discounts and the final price.
-
-
-
-Input should be via a suitable structured input (i.e., a List,  such as {‘~DATE~’, ‘item1’, ‘item2’, ‘item3’, … } ) :
-
- either via the command line in the form PriceBasket List. For example: PriceBasket {‘16/1/2020’, ‘milk’, ‘Bread’, ‘apples’}
-Or via HTTP request to an appropriate endpoint with the same List
-
-Output should be to the console and appropriate HTTP requests (with appropriate error codes), for example:
-
+ * - SimpleOrder Store application
+ * - the applicatio allows you to purchase items available in the `./simple-order/store.json` by making a call `order(..)`
+ * -  It is seperated to independant micro services so it is more flexible to extend and read
+ * - The base of this class imports all of the SimpleOrder components: `Store, Basket` and it is then initiated via Server application.
+ * - Examples on implementation are available at root `./examples.js` or `npm run examples`
+ * - I have implemented an `errorMessages` handler for displaying relevant messages, it applies to server as well, also there a `debug` option when enabled will also show more critical errors < good fore debuging
  */
-
-
 module.exports = function () {
     const errorMessages = require('../errors')
     const { notify, timestamp } = require('../utils')
@@ -37,22 +22,6 @@ module.exports = function () {
             // collect all client orders here
             this.clientBaskets = {}
 
-            // const id = timestamp()
-            // const b = new Basket(id, cloneDeep(this.listStore),this.offerSchema['basket'], this.debug)
-
-            // const purchase1 = {tuna:5,milk:2,apples:3}
-            // const purchase2 = {bread:2,soup:2,milk:2,apples:3}
-
-            // b.set({})
-            // notify({Basket:b.get().data})
-
-        }
-
-        /**
-         * - get available Store
-         */
-        get listStore() {
-            return this.menu
         }
 
         /**
@@ -96,7 +65,6 @@ module.exports = function () {
             // with this in mind we could create an update order, caching existing basket
             // and setting cache clear timeout
             this.clientBaskets[id] = o
-   
             
             const noAvailable = this.notAvailable(b) ||{}
             const currency =  this.currency.name
@@ -111,6 +79,24 @@ module.exports = function () {
                 
             }     
         }
+
+        /**
+         * TODO
+         * - update existing order
+         */
+        // updateOrder(id){
+        //     // this.clientBaskets[id] etc
+        // }
+        
+
+        
+        /**
+         * - get available Store
+         */
+        get listStore() {
+            return this.menu
+        }
+
 
         /**
          * - provide message for when item your are requesting is not available in the Backet
