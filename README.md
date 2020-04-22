@@ -1,4 +1,3 @@
-
 ### Simple Order API
 
 * By `EagleX`
@@ -7,6 +6,7 @@
 ##### LICENSE
 * LICENCE: CC BY-NC-ND
 * SOURCE: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
 
 #### About
 
@@ -73,5 +73,9 @@ We have `Express server` and `SimpleOrder` application is initiated from `/serve
 * **(add)** get request test 
 * **(add)** local storage
 * **(add)** Mongo server
+
+##### Contact
+ * Have questions, or would like to submit feedback, `contact me at: https://eaglex.net/app/contact?product=Simple-Order-API`
+
 
 ###### Thank you

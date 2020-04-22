@@ -6,11 +6,11 @@ npm-debug.log
 *.dev
 .DS_Store
 dist
+assets
 
 # Docker
 Dockerfile
 docker-compose.yml
-libs/simpleCache/cache
 # mongo db
 ###################
 #Don't commit Mongo Database files
@@ -19,13 +19,9 @@ libs/simpleCache/cache
 *.1
 *.ns
 journal
-
 # Ignore Web Storm #
 .idea
 
-# ignore all git repos, those can be requested remotly
-libs/prm-module
-prm-module
 # Compiled source #
 ###################
 *.com
