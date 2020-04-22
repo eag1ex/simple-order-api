@@ -86,7 +86,7 @@ module.exports = function(){
         /**
          * - compare subtotal and total to get differance
          */
-        priceDifferance() {
+        priceDifference() {
             if (!this.id) return null
 
             let total = this.total()
