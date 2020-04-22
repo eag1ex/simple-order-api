@@ -57,7 +57,7 @@ module.exports = function(){
         }
 
         get defaultOfferSchema() {
-            return { store: storeConfig, basket: basketConfig }
+            return { store: storeConfig['store'], basket: basketConfig }
             // return {
             //     // global store discounts for each item
             //     store: [{

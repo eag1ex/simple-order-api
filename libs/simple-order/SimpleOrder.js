@@ -109,8 +109,7 @@ module.exports = function () {
                     ...noAvailable
                 }
                 
-            }
-       
+            }     
         }
 
         /**
@@ -148,7 +147,8 @@ module.exports = function () {
 
            const b= reduce(extraMeta,(n,el,k)=>{
                 if(isNumber(el)){
-                    n[k] = `${this.currency.symbol}${el}`
+                    if(k!=='discounts')  n[k] = `${this.currency.symbol}${el}`
+                    else n[k] = `${el}%`
                 }
                 else if(el!==undefined){
                     n[k] = el

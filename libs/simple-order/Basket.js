@@ -5,7 +5,7 @@
  * - generate Basket model for calculating orders
  */
 module.exports = function(){
-    const { isEmpty, isString,reduce,cloneDeep } = require('lodash')
+    const { isEmpty, isString,reduce,cloneDeep,isNumber,isNaN } = require('lodash')
     const { notify, discountIt, trueObject } = require('../utils')
     return class Basket {
         constructor(id, store = {}, offers=null, debug) {
@@ -129,9 +129,9 @@ module.exports = function(){
             const basket = this.baskets[this.id]['basket']
             
             for (let [k,item] of Object.entries(basket)){
-                sub = sub + (item.metadata.value) *item.purchase
+                console.log()
+                sub = sub + (item.metadata.value) * item.purchase
             }
-            
             if(sub>=0) return Number(parseFloat(sub).toFixed(2));         
             else{
                 if(this.debug) notify(`[subtotal] ups your subtotal is wrong..`,true)
@@ -150,7 +150,6 @@ module.exports = function(){
             for (let [k,item] of Object.entries(basket)){
                 total = total + item.price
             }
-
             if(total>=0) return Number(parseFloat(total).toFixed(2));         
             else{
                 if(this.debug) notify(`[total] ups your total is wrong..`,true)
@@ -380,6 +379,14 @@ module.exports = function(){
                 return null
             }
             for(let [key, value] of Object.entries(basket)){
+
+                value = Number(value)
+                // do not allow entries below 1, and not a number
+                if (!isNumber(value) || value < 1 || isNaN(value)) {
+                    if(this.debug) notify(`[validEntryValues] name: ${key} values below 1 are ignored`,0)
+                    continue
+                }
+
                 if(!this.store[key]){
                     const msg = `sorry we dont have item: ${key} in our store`
                     notify(msg,0)

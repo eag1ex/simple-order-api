@@ -14,7 +14,6 @@ module.exports = function (expressApp) {
         }
 
 
-
         order(req, res) {
             let quote= req.query || {}
 
@@ -34,18 +33,11 @@ module.exports = function (expressApp) {
             /// !SECTION 
 
             const o = this.simpleOrder.order(id,quote)
-
-            if (o.error) {
-                return res.status(200).json({ ...o });
-            }
-            // this.simpleOrder.order(id = "", order = {}) {
+            if (o.error) return res.status(200).json({ ...o });
             return res.status(200).json({ success: true, response:o, code: 200 });
         }
 
 
-        // get examleOrders(){
-
-        // }
     }
 
 }

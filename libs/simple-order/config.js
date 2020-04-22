@@ -10,9 +10,12 @@
 /**
  * global store discounts for each item
  */
-exports.storeConfig = [{
-        name: 'apples', discount: 10
-}]
+exports.storeConfig = {
+   // maxPurchase:1000, // allowed purchase limit // todo
+    store:[{
+            name: 'apples', discount: 20 // percentage number
+    }]
+}
 
 
 /**
