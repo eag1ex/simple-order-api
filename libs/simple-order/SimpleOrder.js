@@ -1,12 +1,12 @@
 `use strict`
 
 /**
- * - SimpleOrder Store application
- * - the applicatio allows you to purchase items available in the `./simple-order/storeData.json` by making a call `order(..)`
+ * SimpleOrder Store application
+ * - the applicatio allows you to purchase items available in `./simple-order/storeData.json` by making call `order(..)`
  * -  It is seperated to independant micro services so it is more flexible to extend and read
  * - The base of this class imports all of the SimpleOrder components: `Store, Basket` and it is then initiated via Server application.
  * - Examples on implementation are available at root `./examples.js` or `npm run examples`
- * - I have implemented an `errorMessages` handler for displaying relevant messages, it applies to server as well, also there a `debug` option when enabled will also show more critical errors < good fore debuging
+ * - I have implemented an `errorMessages` handler for displaying relevant messages, it applies to server as well, also there is `debug` option when enabled will show more critical errors.
  */
 module.exports = function () {
     const moment = require('moment')

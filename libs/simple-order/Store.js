@@ -2,7 +2,7 @@
 
 /**
  *  Micro Service
- *  `Store` keeps record of available store items initialy setup in `./simple-order/storeData.json`
+ *  `Store` keeps record of available items initialy setup in `./simple-order/storeData.json`
  * `storeData.json`: you can add new items to the store keeping in mind of required schema - validation is performed via `validateStore()` 
  * 
  * you can check if store is open with `storeOpen()` and list any available items via `menu`
