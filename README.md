@@ -25,7 +25,6 @@ Application runs on simple **Express server** with currently one `REST/get` API 
 $/ npm i
 $/ npm run server
 $/ npm run examples # this performs test from available examples
-$/ npm run test # just a simple test for each Heroku staging
 $/ npm run test # to perform simple test
 ```
 
