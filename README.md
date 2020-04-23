@@ -28,10 +28,7 @@ $/ npm run examples # this performs test from available examples
 $/ npm run test # just a simple test for each Heroku staging
 $/ npm run test # to perform simple test
 ```
-  
-#### Heroku node.js server:
-* Running application is available to test on:
-* 
+
 
 #### REST/Api
 Available get/ requests, `id` _(is optional,and generated when not provided)_:
@@ -41,6 +38,14 @@ http://localhost:5000/order
 # example queries
 http://localhost:5000/order?bread=5&apples=2&soup=2&milk=4
 http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
+```
+
+  
+#### Heroku node.js server:
+* Running application is available to test on:
+```
+https://peaceful-wildwood-49218.herokuapp.com/
+https://peaceful-wildwood-49218.herokuapp.com/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
 ```
 
 
