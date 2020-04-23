@@ -2,7 +2,7 @@
 
 /**
  * - SimpleOrder Store application
- * - the applicatio allows you to purchase items available in the `./simple-order/store.json` by making a call `order(..)`
+ * - the applicatio allows you to purchase items available in the `./simple-order/storeData.json` by making a call `order(..)`
  * -  It is seperated to independant micro services so it is more flexible to extend and read
  * - The base of this class imports all of the SimpleOrder components: `Store, Basket` and it is then initiated via Server application.
  * - Examples on implementation are available at root `./examples.js` or `npm run examples`

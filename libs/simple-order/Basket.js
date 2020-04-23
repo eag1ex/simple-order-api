@@ -3,11 +3,11 @@
 /**
  * * Basket:  generate Basket model for calculating orders
  * - Each Basket is generated for each order over and over, the `Store` settings are imported via `SimpleOrder`
- * - You can create new offers depending on the items in store and the offers, the logic for this is in `calculatePrice()` inside `offers()`
+ * - You can create new offers depending on the items in store and the offers, the logic for this is in `checkBasketOffers()`
  * 
  * example:
  `
-            const b = new Basket(id, menu, basketConfig, debug)
+            const b = new Basket(id, menu, basketOffers, debug)
             const o = b.set(order)
                         .get().data 
             // user operators            
@@ -20,25 +20,25 @@
  * 
  */
 module.exports = function(){
-    const { isEmpty, isString,reduce,cloneDeep,isNumber,isNaN } = require('lodash')
+    const { isEmpty, isString,reduce,cloneDeep,isNumber,isNaN,isArray } = require('lodash')
     const { notify, discountIt, trueObject } = require('../utils')
     return class Basket {
         /**
          * 
          * @param {*} id 
          * @param {*} store # calculated / valid Store menu 
-         * @param {*} offers # optional offers if any, default `basketConfig` is imported from `./simple-order/config.js`
+         * @param {*} basketOffers # optional offers if any, default `basketOffers` is imported from `./simple-order/config.js`
          * @param {*} debug :)
          */
-        constructor(id, store = {}, offers=null, debug) {
+        constructor(id, store = {}, basketOffers=null, debug) {
             if (isEmpty(store)) throw ('store cannot be empty')
             if (!trueObject(store)) throw ('store must be an object')
-            if (offers && !trueObject(offers)) throw ('offers must be an object, refer to defaultOffers')
+            if (basketOffers && !isArray(basketOffers)) throw ('basketOffers must be an array[...], refer to defaultOffers')
             if (!(id.toString())) throw ('id must be set')
             this.debug = debug
             this.data = null // dynamicly changing data access variable
             this.id = id.toString();
-            this.offers = offers || this.defaultOffers ||{}
+            this.basketOffers = basketOffers || this.defaultOffers ||{}
             this.store = store
             this.baskets = {} // generate baskets and assign purchase offers
             this._baskets = {}
@@ -138,22 +138,20 @@ module.exports = function(){
                  * - search thru entire offers until we find matching ref
                  * @param {*} ref 
                  */
-                const findRef = (ref) => {
-                    const refs = []
-                    for (let [k, promo] of Object.entries(this.offers)) {
-                        if (promo.ref === ref) refs.push({ ref, message: promo.message })
-                    }
-                    return refs
+                const findOffers = (name) => {
+                    return cloneDeep(this.basketOffers).map(z => {
+                        if (z[name] !== undefined) return z[name].message
+                    }).filter(z => !!z)
                 }
 
                 // only including offers not store discounts
                 for (let [k, item] of Object.entries(basket)) {
-                    if (item.metadata.offer !== undefined && item.metadata.discount!==undefined) {
-                        const found = findRef(item.metadata.offer)
+                    if (item.metadata.offer !== undefined) {
+                        const found = findOffers(k)
                         if (found.length) offers = [].concat(offers, found)
-
                     }
                 }
+
             } catch (err) {
                 notify(err, true)
             }
@@ -163,6 +161,7 @@ module.exports = function(){
         }
         /**
          * - get subtotal before any discount
+         * - we calculate subtotal against the `_oldValue` if exists, set in Store initially
          */
         subtotal(){
             if(!this.id) return null
@@ -170,14 +169,19 @@ module.exports = function(){
             const basket = this.baskets[this.id]['basket']
             
             for (let [k,item] of Object.entries(basket)){
-                sub = sub + (item.metadata.value) * item.purchase
+                // get initial price from before discount was set in the store
+                let metaValue
+                if(item.metadata.discount!==undefined && item.metadata._oldValue!==undefined){
+                    metaValue = item.metadata._oldValue
+                }else metaValue  = item.metadata.value
+                sub = sub + (metaValue) * item.purchase
             }
+
             if(sub>=0) return Number(parseFloat(sub).toFixed(2));         
             else{
                 if(this.debug) notify(`[subtotal] ups your subtotal is wrong..`,true)
                 return 0
-            }
-           
+            }        
         }
 
         /**
@@ -210,141 +214,133 @@ module.exports = function(){
          * when offers are not set we will default to these offers
          */
         get defaultOffers() {
-            return {
-                // Buy 2 tins of soup and get a loaf of bread for half price
-                // offer only applies when you buy `bread`
-                soup: {
-                    message:'Buy 2 or more tins of soup and get a loaf of bread for half price',
-                    ref:'soupSpecial', // identify each offer
-                    buyItems: 5, // if buyItems (val/100)*dis
-                    bread: { discount: 50 /**50% */ } // receive discount for bread
+            return [
+                {   // offer
+                    'bread': {
+                        // when you purchase
+                        when: 'soup', purchase: 2,
+                        // you receive
+                        discount: 50,
+                        //coupon:'124sdf46', TODO alternativly when apply coupon you also receive discount 
+                        message: 'Buy 2 or more tins of soup and get a loaf of bread for half price'
+                    }
                 }
-            }
+               //,... 
+            ]
         }
+
+        
         /**
-         * 
-         * @params {*} { name, item } name: example `soup`, item: is the items basket values
-         * @param {*} offers # available offers if, must return object, example:{discount}
+         * - update and return new item if there are offers
+         * - once offer is available if also create price in the item
+         * @param {*} k 
+         * @param {*} itm 
+         * @param {*} al 
          */
-        priceItem({ name, item }, offers = null) {
-            if(!this.store[name]) {
-                const msg = `[priceItem] cannot price the item because it does not exist`
-                notify(msg, 0)
-                this.basketErrors.push({name,message:msg})
-                return null
-            }
-            // NOTE in case we have discount set directly on the store, use that
-            const { value, discount } = this.store[name] || {}
-            const { purchase,metadata } = item
+        checkBasketOffers(k,itm,al){
 
-            if(!metadata) throw('metadata is not available on priceItem')
-            // returns  {discount} or null
-            const getOffers = () => {
-                return isEmpty(offers) ? null : offers
-            }
-            
             /**
-             * if store has discount use that, else check available discounts, or apply `0`
-             */
-            const calcPrice = (cb) => {
-                const hasDiscount = getOffers() ? getOffers().discount : discount||0   
-                if(discount>0) {
-                    // update metadata for the item
-                    if(typeof cb==='function') cb()
-                }   
-                const initialPrice = purchase * value
-                const totalPrice = discountIt(initialPrice, hasDiscount)
-                
-                return totalPrice
+             * // offer structure
+                [
+                        {   // offer
+                            'bread': {
+                                // when you purchase
+                                when: 'soup', purchase: 2,
+                                // you receive
+                                discount: 50,
+                                //coupon:'124sdf46', TODO alternativly when apply coupon you also receive discount 
+                                message: 'Buy 2 or more tins of soup and get a loaf of bread for half price'
+                            }
+                        }
+                    //,... 
+            ]
+             */       
+            const offerConditions = (offer)=>{
+                return offer
             }
-            // add decimal points
-            const newPrice = calcPrice(d=>{
-                item['metadata']['discount'] =discount
-                 if(this.debug) notify({message:'applying store/global discounts', name, discount, id:this.id})    
-            })    
-            item.price = Number(parseFloat(newPrice).toFixed(2)); 
 
-            
-            return item
+            const checkOffers = (key, all) => {
+
+                return cloneDeep(this.basketOffers).map(z => {
+                     const offer = z[key]
+                     if(!offer) return null
+                     const when = all[(offer || {}).when]              
+                     if(when===undefined) return null
+
+                     // SECTION 
+                     // when offer match our basket 
+                     // return the offer
+                    // console.log('what is offer',offer.purchase)
+                     if (when.purchase >= offer.purchase) {                    
+                         return offerConditions(offer)
+                     }
+                     // !SECTION 
+
+
+                     else return null
+                 }).filter(z=>!!z) [0] || null // there should only be 1 offer per item, for now
+             }
+
+             const updateProduct = (kk,item, offer)=>{               
+                 if(offer===null)  return null
+                 item['metadata']['discount'] = offer['discount']
+                 item['metadata']['offer'] = true //offer.message;
+                 item = this.applyPrice(item)
+
+                 if(this.debug) notify(`special offer/discounts applied for ${kk}`)
+                 return item
+             }
+             // if there are offers update and return new item
+             return updateProduct(k,itm,checkOffers(k,al))
         }
+
         
         /**
          * @param {*} k basket key
          * @param {*} basket property value
-         * - example:
-         *   `
-               { soup:
-                     purchase: 2,
-                     metadata: { lable: 'Soup', info: 'per item', _id: 'c29hcA' } 
-                }`
          */
         calculatePrice(basket = {}, id) {
             if (!basket) throw ('basket must be set')
 
-            /**
-             * identify what offer and do custom munipulation
-             * - also updates the `all` object state
-             *  */
-            const offers = (key, purchase, allBskt) => {
 
-                let applied = null
-                const { buyItems, bread, ref } = this.offers[key] || {}
-
-                if (!ref)return null // no offers availeble            
-                
-                switch (key) {
-                    ///////////// soup offer conditions
-                    case 'soup':
-                        if (purchase >= buyItems && allBskt['bread']) {
-                            try {
-                              
-                                const { price, metadata } = this.priceItem({ name: 'bread', item: allBskt['bread'] }, bread)
-                                if(!metadata)  throw('metadata is not available on priceItem')
-                                // check if store has global discount and use that instead
-                                const discount = metadata.discount!==undefined ? metadata.discount:bread.discount
-
-                                allBskt['bread']['price'] = price
-                                allBskt['bread']['metadata'].discount = discount
-                                allBskt['bread']['metadata'].offer = ref
-                             if(this.debug)  notify({ message: `special offer/discounts applied for bread`, bread: allBskt['bread'], id })
-                                applied = true
-                            } catch (err) {
-                                notify({message:"[calculatePrice] error",err},true)
-                            }
-
-                        }
-                        break
-                    default:
-                            notify(`[calculatePrice] Sorry, no offer conditions available for ${key}`,0)    
-                        applied = false
-                    // no offer    
-                }
-                return applied
-            }
 
             try {
                 reduce(basket, (n, item, k, all) => {
-                    
-                    offers(k, item.purchase, all)
 
+                    const itemWitOffer = this.checkBasketOffers(k, item, all)
+                    if (itemWitOffer) item = itemWitOffer
+ 
                     if (item.price !== undefined) return n
-                    const { price, metadata } = this.priceItem({ name: k, item })
-                    n[k] = {
-                        ...item,
-                        ...metadata,
-                        price
-                    }
+                    n[k] = this.applyPrice(item)
 
                     return n
                 }, {})
             } catch (err) {
                 notify({ message: 'reduce error', err }, true)
             }
-
-
             return basket
         }
 
+        isBasketItem(item){
+            if(!trueObject(item)) return null
+            if(item['metadata'] && item.purchase!==undefined) return true
+            return false
+        }
+
+        /**
+         * - update basket item with new price property
+         * @param {*} item # basket item
+         */
+        applyPrice(item){
+            if(!this.isBasketItem(item)){
+                const msg = `[applyPrice] cannot price the item because it does not exist`
+                this.basketErrors.push({name,message:msg})
+                throw(msg)
+            }
+            const initialPrice = item.purchase * item['metadata'].value
+            item.price = Number(parseFloat(initialPrice).toFixed(2)); 
+            return item
+        }
 
         /**
          * - initialize baskes with setter/getter to make dynamic adjustments
@@ -368,7 +364,6 @@ module.exports = function(){
                             }
                             // set our offers here, every time there is change in the basket, nice!
                           
-
                             v = self.validEntryValues(v)  // check item entries
                             if(!v) return
 
@@ -440,6 +435,5 @@ module.exports = function(){
             if(isEmpty(updatedEntry)) return null
             return updatedEntry;
         }
-
     }
 }

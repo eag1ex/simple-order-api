@@ -2,8 +2,8 @@
 
 /**
  * our `Store`
- * - keeps record of available store items initialy setup in `./simple-order/store.json`
- * `store.json`: you can add new items to the store keeping in mind of required schema - validation is performed via `validateStore()` 
+ * - keeps record of available store items initialy setup in `./simple-order/storeData.json`
+ * `storeData.json`: you can add new items to the store keeping in mind of required schema - validation is performed via `validateStore()` 
  * 
  * you can check if store is open with `storeOpen()` and list any available items via `menu`
  */
@@ -11,18 +11,18 @@ module.exports = function () {
 
     //////////////////////
     // our available store
-    const storeEntries = require('./store.json')
+    const storeEntries = require('./storeData.json')
     const errorMessages = require('../errors')
     //////////////////////
 
-    const { storeConfig, basketConfig, currency } = require('./config')
+    const { storeConfig, basketOffers, currency } = require('./config')
 
     const { uid, notify, discountIt, isType, trueObject } = require('../utils')
     const { isEmpty, cloneDeep, reduce, isNaN } = require('lodash')
     return class Store {
 
         /**
-         * @param opts.offerSchema #  if not settings applied using `defaultOfferSchema= { store: storeConfig['store'], basket: basketConfig }`, refer to default structure from `./simple-order/config.js`
+         * @param opts.offerSchema #  if not settings applied using `defaultOfferSchema= { store: storeConfig['store'], basket: basketOffers }`, refer to default structure from `./simple-order/config.js`
          */
         constructor(opts = {}, debug) {
             this.lastStoreError = null // store our last store error
@@ -83,7 +83,7 @@ module.exports = function () {
         }
 
         get defaultOfferSchema() {
-            return { store: storeConfig['store'], basket: basketConfig }
+            return { store: storeConfig['store'], basket: basketOffers }
             // return {
             //     // global store discounts for each item
             //     store: [{
@@ -113,7 +113,7 @@ module.exports = function () {
             //return { name: 'USD', symbol: '$' }
         }
         /**
-         * - populate our store with valid entries from `store.json`
+         * - populate our store with valid entries from `storeData.json`
          */
         get storeEntries() {
 
@@ -125,13 +125,13 @@ module.exports = function () {
 
 
         /**
-         * - check `store.json` entries are valid
+         * - check `storeData.json` entries are valid
          */
         validateStore() {
 
             const throwError = () => {
                 this.lastStoreError = errorMessages['006'].message ///'Sorry, our store is out of stock!'
-                throw ('ups, your store.json is either empty or has invalid items')
+                throw ('ups, your storeData.json is either empty or has invalid items')
             }
             if (isEmpty(storeEntries) || !trueObject(storeEntries)) throwError()
 
@@ -223,11 +223,15 @@ module.exports = function () {
                         const origValue = item.value
 
                         // store discount takes priority over `config.js` `storeConfig` discount
-                        const discnt = (discount !== undefined && discount > 0) ? discount : el.discount
+                        const discnt = (discount !== undefined && discount >= 0) ? discount : el.discount
                         item.value = discountIt(item.value, discnt)
 
                         // check if disscount differs from original price 
-                        if (origValue !== item.value) item.discount = discnt
+                        if (origValue !== item.value) {
+                            item.discount = discnt
+                            // keep old value since discoutn will change decimal points if we want to reverse wouldnt be the same
+                            item._oldValue = origValue
+                        }
                     }
                 }, {})
                 _menu[key] = item
