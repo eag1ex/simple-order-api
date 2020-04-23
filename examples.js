@@ -7,7 +7,7 @@
   * - using `SimpleOrder` class directly without server
   * - should apply given discount in `./libs/simple-order/config.js` 
   */
- //simpleExample1()
+ // simpleExample1()
  function simpleExample1(){
     const SimpleOrder = require('./libs/simple-order/SimpleOrder')()
     const debug = true
@@ -17,31 +17,36 @@
     const so = new SimpleOrder({},debug)
    // 
      const id = timestamp()
-     const order = { bread: 5, apples: 2, soup: 2 }
+     const order ={ bread: 5,  soup: 2, apples: 2 } 
      const response = so.order(id,order)
      notify({simpleExample1:response})
 
      /**
       * example output:
       * 
-         { currency: 'USD',
-     id: '1587633574785',
-     total: '$6.9',
+        { currency: 'USD',
+     id: '1587637803312',
+     total: '$4.9',
      subtotal: '$7.3',
-     discounts: '5.63%',
+     discounts: '39.34%',
      offers:
       [ 'Buy 2 or more tins of soup and get a loaf of bread for half price' ],
-     date: '2020-04-23T16:19:34+07:00',
+     date: '2020-04-23T17:30:03+07:00',
      basket:
       { bread:
          { purchase: 5,
            metadata:
             { lable: 'Bread',
-              value: 0.8,
+              value: 0.4,
               info: 'per item',
               discount: 50,
-              offer: true },
-           price: 4 },
+              offer: true,
+              _oldValue: 0.8 },
+           price: 2 },
+        soup:
+         { purchase: 2,
+           metadata: { lable: 'Soup', value: 0.65, info: 'per item' },
+           price: 1.3 },
         apples:
          { purchase: 2,
            metadata:
@@ -50,11 +55,7 @@
               info: 'per bag',
               discount: 20,
               _oldValue: 1 },
-           price: 1.6 },
-        soup:
-         { purchase: 2,
-           metadata: { lable: 'Soup', value: 0.65, info: 'per item' },
-           price: 1.3 } } } 
+           price: 1.6 } } }  
       */
  }   
 
@@ -77,13 +78,13 @@ function simpleExample2(){
     notify({simpleExample2:response})
 
     /**
-    { currency: 'USD',
-     id: '1587633720274',
+   { currency: 'USD',
+     id: '1587637835643',
      total: '$8.05',
      subtotal: '$8.25',
      discounts: '2.45%',
      offers: 'No offers available',
-     date: '2020-04-23T16:22:00+07:00',
+     date: '2020-04-23T17:30:35+07:00',
      basket:
       { bread:
          { purchase: 5,

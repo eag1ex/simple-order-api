@@ -232,7 +232,8 @@ module.exports = function(){
         
         /**
          * - update and return new item if there are offers
-         * - once offer is available if also create price in the item
+         * - once offer is available, also create price in the item
+         * - add `_oldValue` to offer item so we can calculate `subtotal`
          * @param {*} k 
          * @param {*} itm 
          * @param {*} al 
@@ -285,6 +286,11 @@ module.exports = function(){
                  if(offer===null)  return null
                  item['metadata']['discount'] = offer['discount']
                  item['metadata']['offer'] = true //offer.message;
+
+                 // update initial value to discount value and add `_oldValue` to basket item
+                 const _oldValue =  item['metadata']['value']
+                 item['metadata']['value'] = discountIt(_oldValue, offer['discount'])
+                 if(_oldValue!==item['metadata']['value']) item['metadata']['_oldValue'] = _oldValue
                  item = this.applyPrice(item)
 
                  if(this.debug) notify(`special offer/discounts applied for ${kk}`)
