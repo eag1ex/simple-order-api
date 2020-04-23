@@ -36,7 +36,7 @@
       { bread:
          { purchase: 5,
            metadata:
-            { lable: 'Bread',
+            { label: 'Bread',
               value: 0.4,
               info: 'per item',
               discount: 50,
@@ -45,12 +45,12 @@
            price: 2 },
         soup:
          { purchase: 2,
-           metadata: { lable: 'Soup', value: 0.65, info: 'per item' },
+           metadata: { label: 'Soup', value: 0.65, info: 'per item' },
            price: 1.3 },
         apples:
          { purchase: 2,
            metadata:
-            { lable: 'Apples',
+            { label: 'Apples',
               value: 0.8,
               info: 'per bag',
               discount: 20,
@@ -88,12 +88,12 @@ function simpleExample2(){
      basket:
       { bread:
          { purchase: 5,
-           metadata: { lable: 'Bread', value: 0.8, info: 'per item' },
+           metadata: { label: 'Bread', value: 0.8, info: 'per item' },
            price: 4 },
         apples:
          { purchase: 1,
            metadata:
-            { lable: 'Apples',
+            { label: 'Apples',
               value: 0.8,
               info: 'per bag',
               discount: 20,
@@ -101,11 +101,11 @@ function simpleExample2(){
            price: 0.8 },
         soup:
          { purchase: 1,
-           metadata: { lable: 'Soup', value: 0.65, info: 'per item' },
+           metadata: { label: 'Soup', value: 0.65, info: 'per item' },
            price: 0.65 },
         milk:
          { purchase: 2,
-           metadata: { lable: 'Milk', value: 1.3, info: 'per item' },
+           metadata: { label: 'Milk', value: 1.3, info: 'per item' },
            price: 2.6 },
         bananas:
          { message: 'sorry we dont have item: bananas in our store',

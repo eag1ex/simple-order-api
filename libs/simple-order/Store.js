@@ -59,10 +59,10 @@ module.exports = function () {
             /**
              * example output:
              * {
-                soup: { _id: uid('soup'), lable: 'Soup', value: .65, info:'per item' }, // per item
-                bread: { _id: uid('bread'), lable: 'Bread', value: .8, info:'per item' }, // per item
-                milk: { _id: uid('milk'), lable: 'Milk', value: 1.3, info:'per item' }, // per item
-                apples: { _id: uid('apples'), lable: 'Apples', value: 1, info:'per bag' }, // per bag
+                soup: { _id: uid('soup'), label: 'Soup', value: .65, info:'per item' }, // per item
+                bread: { _id: uid('bread'), label: 'Bread', value: .8, info:'per item' }, // per item
+                milk: { _id: uid('milk'), label: 'Milk', value: 1.3, info:'per item' }, // per item
+                apples: { _id: uid('apples'), label: 'Apples', value: 1, info:'per bag' }, // per bag
             }
              */
             return this._menu
@@ -217,7 +217,7 @@ module.exports = function () {
             if (!this.applyStoreDiscounts) return menu
             const _menu = {}
             for (let [key, item] of Object.entries(menu)) {
-                let { lable, value, discount } = item || {}
+                let { label, value, discount } = item || {}
                 this.offerSchema['store'].reduce((n, el, i) => {
                     if (key === el.name) {
                         const origValue = item.value

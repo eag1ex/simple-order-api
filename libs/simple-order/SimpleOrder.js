@@ -173,7 +173,7 @@ module.exports = function () {
          * {apples: {
                 purchase: "2",
                 metadata: {
-                lable: "Apples",
+                label: "Apples",
                 value: 0.9,
                 info: "per bag",
                 discount: 10
