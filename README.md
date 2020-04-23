@@ -36,7 +36,7 @@ http://localhost:5000/order
 
 # example queries
 http://localhost:5000/order?bread=5&apples=2&soup=2&milk=4
-http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
+http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4&bananas=7
 ```
 
   
@@ -44,7 +44,7 @@ http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
 * Running application is also available on:
 ```
 https://peaceful-wildwood-49218.herokuapp.com/
-https://peaceful-wildwood-49218.herokuapp.com/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
+https://peaceful-wildwood-49218.herokuapp.com/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4&bananas=7
 ```
 
 #### Examples and Test
