@@ -30,7 +30,7 @@ $/ npm run test # to perform simple test
 
 
 #### REST/Api
-Available get/ requests, `id` _(is optional,and generated when not provided)_:
+* Available get/ requests, `id` _(is optional,and generated when not provided)_:
 ```
 http://localhost:5000/order
 
@@ -84,4 +84,4 @@ We have `Express server` and `SimpleOrder`, application is initiated from `/serv
  * Have questions, or would like to submit feedback, `contact me at: https://eaglex.net/app/contact?product=Simple-Order-API`
 
 
-###### Thank you
+##### Thank you
