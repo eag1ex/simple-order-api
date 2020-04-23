@@ -20,7 +20,7 @@ Application runs on simple **Express server** with currently one `REST/get` API 
 
 
 #### Installation & Start
-* on `localhost` application is available on `http://localhost:5000/` 
+* on `localhost` application is available at: `http://localhost:5000/` 
 ```
 $/ npm i
 $/ npm run server
@@ -61,12 +61,12 @@ We have `Express server` and `SimpleOrder`, application is initiated from `/serv
 
 	-  **/simple-order/SimpleOrder.js**: extends from Store.js, and initializes the application  including the Basket.js
 
-	-  **/simple-order/Basket.js** : Every  new`order` is  a `new Basket()` that calculates conditions and `offers` available in `config.js`. The configuration of this class of controlled via `SimpleOrder.js`
+	-  **/simple-order/Basket.js** : Every  new`order` is  a `new Basket()` that calculates conditions and `offers` available from `config.js`. Configuration of this class is controlled via `SimpleOrder.js`
 
-	-  **/simple-order/config.js**: default configuration imported to Store.js, but you can import yours, __how to__ available in `./examples.js`
+	-  **/simple-order/config.js**: default configuration imported to Store.js, but can import yours, __how to__ available in `./examples.js`
 
-	-  **/simple-order/storeData.json** : available store imported to Store.js class, you can add any more items following the same schema.
-	**/simple-order/storeData.js** : you can also provide as js file
+	-  **/simple-order/storeData.json** : available store imported to Store.js class, can add any more items following the same schema.
+	**/simple-order/storeData.js** : can also provide as js file
 
 
 * About `server`:

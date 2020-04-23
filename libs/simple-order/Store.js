@@ -161,7 +161,7 @@ module.exports = function () {
 
                     continue
                 }
-
+ 
                 if (item.discount !== undefined && isType(item.discount) !== 'number') {
                     if (this.debug) notify(`[validateStore], your store entry for ${key} / discount must be a number`, true)
 
