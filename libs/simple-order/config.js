@@ -24,7 +24,6 @@ exports.storeConfig = {
 * 
 * **/
 
-
 exports.basketOffers = [
     {   // offer name
         'bread': { 
