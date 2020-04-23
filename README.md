@@ -8,7 +8,7 @@
 
 #### About
 
-* This application is a Simple Shop that allows you to purchase items from store which you initially setup. The design is extendable with nice application hierarchy. There are 3 `Micro Services` doing independent calculation, this way it is easy to read the flow of data, and debug it...
+* This application is a Simple E-commerce Shop that allows you to purchase items from store which you initially setup. The design is extendable with nice application hierarchy. There are 3 `Micro Services` doing independent calculation, this way it is easy to read the flow of data, and debug it...
 
 Application runs on simple **Express server** with currently one `REST/get` API available.
 
