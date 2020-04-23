@@ -41,21 +41,19 @@ http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
 
   
 #### Heroku node.js server:
-* Running application is available to test on:
+* Running application is also available on:
 ```
 https://peaceful-wildwood-49218.herokuapp.com/
 https://peaceful-wildwood-49218.herokuapp.com/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
 ```
 
-
 #### Examples and Test
 * examples are available in `./examples.js`
-```
 
 
 #### Code Hierarchy
 
-We have `Express server` and `SimpleOrder` application is initiated from `/server/controllers.`
+We have `Express server` and `SimpleOrder`, application is initiated from `/server/controllers.`
 
 * About `Simple Order - Micro Services`:
 
@@ -65,7 +63,7 @@ We have `Express server` and `SimpleOrder` application is initiated from `/serve
 
 	-  **/simple-order/Basket.js** : Every  new`order` is  a `new Basket()` that calculates conditions and `offers` available in `config.js`. The configuration of this class of controlled via `SimpleOrder.js`
 
-	-  **/simple-order/config.js**: default configuration file imported to Store.js, but you can import yours, __how to__ available in `./examples.js`
+	-  **/simple-order/config.js**: default configuration imported to Store.js, but you can import yours, __how to__ available in `./examples.js`
 
 	-  **/simple-order/storeData.json** : available store imported to Store.js class, you can add any more items following the same schema.
 	**/simple-order/storeData.js** : you can also provide as js file
@@ -73,11 +71,11 @@ We have `Express server` and `SimpleOrder` application is initiated from `/serve
 
 * About `server`:
 
-- Server starts via `./serverApp.js`, the `SimpleOrder`application is initialized from `./server/controllers.js` with currently one request `get/order(..)` available.
+	- it starts via `./serverApp.js`, `SimpleOrder` application is initialized from `./server/controllers.js` with currently one request `get/order(..)` available.
 
 
 #### TODO
-* **(add)** basketOffers to storeData.json in individual store items
+* **(add)** basketOffers to storeData.json on individual items
 * **(add)** add more tests
 * **(add)** local storage
 * **(add)** Mongo server
