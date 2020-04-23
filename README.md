@@ -26,6 +26,7 @@ $/ npm i
 $/ npm run server
 $/ npm run examples # this performs test from available examples
 $/ npm run test # just a simple test for each Heroku staging
+$/ npm run test # to perform simple test
 ```
   
 #### Heroku node.js server:
@@ -41,6 +42,12 @@ http://localhost:5000/order
 http://localhost:5000/order?bread=5&apples=2&soup=2&milk=4
 http://localhost:5000/order?id=1587581486216&bread=5&apples=2&soup=2&milk=4
 ```
+
+
+#### Examples and Test
+* examples are available in `./examples.js`
+```
+
 
 #### Code Hierarchy
 
@@ -64,13 +71,10 @@ We have `Express server` and `SimpleOrder` application is initiated from `/serve
 
 - Server starts via `./serverApp.js`, the `SimpleOrder`application is initialized from `./server/controllers.js` with currently one request `get/order(..)` available.
 
-#### Examples and test
-* examples are available in `./examples.js`
-  
 
 #### TODO
 * **(add)** basketOffers to storeData.json in individual store items
-* **(add)** get request test 
+* **(add)** add more tests
 * **(add)** local storage
 * **(add)** Mongo server
 

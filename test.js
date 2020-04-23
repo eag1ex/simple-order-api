@@ -3,28 +3,32 @@ const request = require('request');
 const test = require('tape');
 
 // Start the app
-const env = Object.assign({}, process.env, {PORT: 5000});
-const child = spawn('node', ['index.js'], {env});
+const env = Object.assign({}, process.env, { PORT: 5000 });
+const child = spawn('node', ['index.js'], { env });
 
-test('responds to requests', (t) => {
+
+test('1: order request', (t) => {
   t.plan(4);
-
   // Wait until the server is ready
   child.stdout.on('data', _ => {
     // Make a request to our app
-    request('http://127.0.0.1:5000/', (error, response, body) => {
-      // stop the server
-      child.kill();
+    request({
+      method: 'GET',
+      json: true,
+      url: 'http://127.0.0.1:5000/order?bread=5&apples=2&soup=2&milk=4'
+    },
+      (error, response, body) => {
 
-      // No error
-      t.false(error);
-      // Successful response
-      t.equal(response.statusCode, 200);
-      // Assert content checks
-      // t.notEqual(body.indexOf("<title>Login Form</title>"), -1);
-      // t.notEqual(body.indexOf("Login"), -1);
-    });
+        // stop the server
+        child.kill();
+        // No error
+        t.false(error);
+        // have results
+        try {
+          t.notEqual(Object.keys(body.response.basket).length, -1);
+        } catch (err) {
+          t.notEqual(-1, -1);
+        }
+      });
   });
 });
-
-
