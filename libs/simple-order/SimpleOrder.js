@@ -13,8 +13,8 @@ module.exports = function () {
     const errorMessages = require('../errors')
     const { notify, timestamp } = require('../utils')
     const { cloneDeep, isEmpty,isNumber, reduce,last } = require('lodash')
-    const Store = require('./Store')()
-    const Basket = require('./Basket')()
+    const Store = require('./Store')() // Micro Service
+    const Basket = require('./Basket')() // Micro Service
 
     return class SimpleOrder extends Store {
 

@@ -1,6 +1,7 @@
 `use strict`
 
 /**
+ *   Micro Service
  * * Basket:  generate Basket model for calculating orders
  * - Each Basket is generated for each order over and over, the `Store` settings are imported via `SimpleOrder`
  * - You can create new offers depending on the items in store and the offers, the logic for this is in `checkBasketOffers()`
