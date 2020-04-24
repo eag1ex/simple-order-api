@@ -4,7 +4,8 @@ const util = require('util')
 const base64 = require('base-64')
 const Buffer = require('buffer').Buffer
 const color = require('bash-color')
-const {isNumber,isObject,isArray, isFunction} = require('lodash')
+const {isNumber,isObject,isArray, isFunction, isEmpty} = require('lodash')
+
 /**
  * @prop {*} l any data to print
  * @prop {*} err display as error if set to true
@@ -71,3 +72,28 @@ exports.errorMessages = (messages) => {
 exports.numDate = (num)=>{
     return new Date(Number(num)).getTime() >1
 }
+
+// accept query params with numbers only
+exports.validEntry = (basket)=>{
+    const isTrueObject = (o)=>!isArray(o) && isObject(o) && !isFunction(o)
+
+    const updatedEntry = {}
+    if(!isTrueObject(basket) || isEmpty(basket)){
+        notify(`[validEntryValues] basket must be a valid object`,true)
+        return null
+    }
+
+    for(let [key, value] of Object.entries(basket)){
+        value = Number(value)
+        // do not allow entries below 1, and not a number
+        if (!isNumber(value) || value < 1 || isNaN(value)) {
+            continue
+        }
+        updatedEntry[key] = value
+    }
+
+    if(isEmpty(updatedEntry)) return null
+    return updatedEntry;
+}
+
+

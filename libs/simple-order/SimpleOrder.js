@@ -11,7 +11,7 @@
 module.exports = function () {
     const moment = require('moment')
     const errorMessages = require('../errors')
-    const { notify, timestamp,numDate } = require('../utils')
+    const { notify, timestamp,numDate,validEntry } = require('../utils')
     const { cloneDeep, isEmpty,isNumber, reduce,last, merge,isEqual } = require('lodash')
     const Store = require('./Store')() // Micro Service
     const Basket = require('./Basket')() // Micro Service
@@ -47,6 +47,10 @@ module.exports = function () {
                 return { error: true, ...errorMessages['002']}
             }
 
+
+            if(!validEntry(order)){
+                return { error: true, ...errorMessages['015']}
+            }
             /**
              * each Basket is assigned an id timestamp
              */
@@ -134,6 +138,16 @@ module.exports = function () {
         }
         
         /**
+         * check if order exists 
+         * @param {*} id 
+         */
+        orderExists(id){
+            id = id.toString()
+            if(this.clientExists(id)) return true
+            return false
+        }
+
+        /**
          * - create new basket 
          * @param {*} id # required
          * @param {*} order # required
@@ -161,6 +175,19 @@ module.exports = function () {
             return this.offerSchema
         }
 
+        clientExists(id){
+            try {
+                if (!this.shopClients['clientBaskets'][id] || 
+                    !this.shopClients['clientBasketModels'][id] || 
+                    !this.shopClients['clientQueries'][id]
+                    ) {
+                    return null
+                }
+            } catch (err) {            
+                return null
+            }
+            return true
+        }
 
         /**
          * get available Basket by id
@@ -169,23 +196,14 @@ module.exports = function () {
          */
         getBasket(id) {
             if (!id || !numDate(id)) {
-                if (this.debug) notify('[getBasket] provided id for basket is invalid', true)
+                if (this.debug && !test) notify('[getBasket] provided id for basket is invalid', true)
+                return null
+            }
+            if(!this.clientExists(id)){
+                if (this.debug) notify(`[getBasket] basket for id: ${id} does not exist`, true)
                 return null
             }
 
-            try {
-                if (!this.shopClients['clientBaskets'][id] || 
-                    !this.shopClients['clientBasketModels'][id] || 
-                    !this.shopClients['clientQueries'][id]
-                    ) {
-                    if (this.debug) notify(`[getBasket] basket for id: ${id} does not exist`, true)
-                    return null
-                }
-            } catch (err) {
-                if(this.debug) notify(`[getBasket] your shopClient for: ${id} is empty`,true)
-                return null
-            }
-          
             const b = {
                 query:  this.shopClients['clientQueries'][id],
                 payload: this.shopClients['clientBaskets'][id],

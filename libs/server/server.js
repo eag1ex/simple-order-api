@@ -38,6 +38,7 @@ router.get('/order', controllers.order.bind(controllers));
 router.get('/update', controllers.update.bind(controllers))
 router.get('/store', controllers.store.bind(controllers));
 router.get('/offers', controllers.offers.bind(controllers))
+router.get('/shoppingcard', controllers.shoppingcard.bind(controllers))
 
 
 
