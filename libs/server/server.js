@@ -13,7 +13,7 @@ const ServerAuth = require('./auth')(app)
 const ServerCtrs = require('./controllers')(app)
 const cors = require('cors');
 const ejs = require('ejs');
-
+const q = require('q')
 
 app.set('trust proxy', 1); // trust first proxy
 app.use(morgan('dev'));
@@ -56,7 +56,13 @@ app.use('/', router);
 
 /////////////////////
 // Initialize server
-app.listen(config.port);
-notify({ message: `Server running `, port: config.port })
 
-exports.app = app
+
+var server = app.listen(config.port, function () {
+    var host = (server.address().address ||"").replace(/::/,'localhost')
+    var port = server.address().port;
+    //defer.resolve(true)
+    notify(`server runnign on http://${host}:${port}`)
+})
+
+module.exports = server

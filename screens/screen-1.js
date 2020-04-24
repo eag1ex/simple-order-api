@@ -1,7 +1,7 @@
 
 
     /**
-     * Few `SimpleOrder` examples, including `Server` apis
+     * Few `SimpleOrder` code examples, including `Server` apis
      * - more documentation in `readme.md`, example code available at `./examples.js`
      */
     
@@ -24,7 +24,7 @@
     const simpleO = new SimpleOrder({ store, basket }, debug)
     const id = `1587748967237`
 
-    // from order
+    // from `/order?...`
     // const order = { bread: 5, soup: 2, apples: 2 }
     // simpleO.order(id, order)
 
@@ -37,31 +37,31 @@
 
 
 
-    // NOTE Server REST/apis:
+    // NOTE Server REST/apis code examples:
     /**
      * (GET): `/shoppingcard?id=1587748967237`
      */
-    controler.shoppingcard(req, res) {  }    
+    controller.shoppingcard(req, res) {  }    
 
     /**
      *  (GET): `/store` # available products in store
      */
-    controler.store(req, res) {  }  
+    controller.store(req, res) {  }  
 
     /**
      * (GET): `/offers` # available offers in store
      */
-    controler.offers(req, res) {  }
+    controller.offers(req, res) {  }
     
     /**
      * (GET): `/order?soup=2&milk=2&apples=4&bread=2` # available offers in store
      */
-    controler.order(req, res) {  } 
+    controller.order(req, res) {  } 
 
     /**
      * (GET): `/update?id=1587748967237&soup=1&milk=2&apples=4&bread=1`
      */
-    controler.update(req, res) {  }
+    controller.update(req, res) {  }
     
 
     
