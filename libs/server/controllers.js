@@ -41,6 +41,39 @@ module.exports = function (expressApp) {
             return res.status(200).json({ success: true, response:{menu:this.simpleOrder.listStore}, code: 200 });
         }
 
+
+        /**
+         * - update order is the same get request except for `simpleOrder.updateOrder` has changed
+         * @param {*} req 
+         * @param {*} res 
+         */
+        update(req, res){
+            if(this.serverCatchLastError){
+                notify(this.serverCatchLastError,true)
+                return res.status(500).json({ error: true, ...errorMessages['007'] });
+            }
+            let quote= req.query || {}
+
+
+            /// SECTION handle validation of requests
+            if (isEmpty(quote)) {
+                return res.status(200).json({ error: true, ...errorMessages['004'] });
+            }
+            // use provided id or generate new
+            let id = quote.id ? quote.id:timestamp()
+            unset(quote,'id')
+
+            if(!numDate(id) && id){
+                return res.status(200).json({ error: true, ...errorMessages['005'] });
+            }
+            /// !SECTION 
+
+            const o = this.simpleOrder.updateOrder(id,quote)
+            if (o.error) return res.status(200).json({ ...o });
+            return res.status(200).json({ success: true, response:o, code: 200 });
+        }
+
+
         order(req, res) {
             if(this.serverCatchLastError){
                 notify(this.serverCatchLastError,true)
@@ -48,7 +81,6 @@ module.exports = function (expressApp) {
             }
             let quote= req.query || {}
 
-            console.log('callin on order', quote)
 
             /// SECTION handle validation of requests
             if (isEmpty(quote)) {

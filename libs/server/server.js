@@ -35,8 +35,11 @@ const controllers = new ServerCtrs(DEBUG)
 /////////////////////
 // set server routes
 router.get('/order', controllers.order.bind(controllers));
+router.get('/update', controllers.update.bind(controllers))
 router.get('/store', controllers.store.bind(controllers));
 router.get('/offers', controllers.offers.bind(controllers))
+
+
 
 // catch all other calls
 router.all("*", function (req, res) {
