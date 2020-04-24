@@ -18,6 +18,13 @@ module.exports = function (expressApp) {
             }
         }
 
+        /**
+         * (GET) REST/api
+         * - Show if any available offers
+         * `example: /offers` 
+         * @param {*} req 
+         * @param {*} res 
+         */
         offers(req, res){
             if(this.serverCatchLastError){
                 notify(this.serverCatchLastError,true)
@@ -28,6 +35,13 @@ module.exports = function (expressApp) {
             return res.status(200).json({ success: true, response:o, code: 200 });
         }
         
+        /**
+         * (GET) REST/api
+         * - Show store inventory
+         * `example: /store` 
+         * @param {*} req 
+         * @param {*} res 
+         */
         store(req, res){
             if(this.serverCatchLastError){
                 notify(this.serverCatchLastError,true)
@@ -42,6 +56,13 @@ module.exports = function (expressApp) {
         }
 
 
+        /**
+         * (GET) REST/api
+         * - display available card
+         * `example: /shoppingcard?id=1587748967237`
+         * @param {*} req 
+         * @param {*} res 
+         */
         shoppingcard(req, res) {
             if (this.serverCatchLastError) {
                 notify(this.serverCatchLastError, true)
@@ -69,7 +90,9 @@ module.exports = function (expressApp) {
         }
 
         /**
+         * (GET) REST/api
          * - update order is the same get request except for `simpleOrder.updateOrder` has changed
+         * `example: /update?id=1587748967237&soup=1&milk=2&apples=4&bread=1`
          * @param {*} req 
          * @param {*} res 
          */
@@ -102,6 +125,13 @@ module.exports = function (expressApp) {
         }
 
 
+        /**
+         * (GET) REST/api
+         * - Make new order
+         * `example: /order?soup=1&milk=2&apples=4&bread=1`
+         * @param {*} req 
+         * @param {*} res 
+         */
         order(req, res) {
             if(this.serverCatchLastError){
                 notify(this.serverCatchLastError,true)
