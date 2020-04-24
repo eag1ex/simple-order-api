@@ -64,7 +64,7 @@
   * - using `SimpleOrder` class directly without server
   * - should not apply offer/discount for bread according to current `basketConfig` in `./libs/simple-order/config.js`
   */
-simpleExample2()
+//simpleExample2()
 function simpleExample2(){
     const SimpleOrder = require('./libs/simple-order/SimpleOrder')()
     const debug = true
@@ -114,3 +114,32 @@ function simpleExample2(){
 }   
 
 
+/**
+     const order ={ bread: 5,  soup: 2, apples: 2 } 
+
+
+     const response = so.order(id,order)
+     console.log('updateOrder', so.updateOrder(id,{bread:7,milk:5,apples:7, soup:1}))
+     //notify({simpleExample1:response})
+ */
+
+ /**
+  * example:
+  * - using `SimpleOrder` class directly without server
+  * - we update an existing order, so it should only return valid update, even if the query is invalid
+  * - all ccording to current `basketConfig` in `./libs/simple-order/config.js`
+  */
+simpleExample3()
+function simpleExample3(){
+    const SimpleOrder = require('./libs/simple-order/SimpleOrder')()
+    const debug = true
+    /**
+     * const offerSchema = {offerSchema: require('./libs/simple-order/config.js',applyStoreDiscounts:true)
+     */
+    const so = new SimpleOrder({},debug)
+    const id = timestamp()
+    const order = { bread: 5, apples: 2, soup: 2, milk: 2,bananas:5 , boo:1}
+    so.order(id,order)
+    const response = so.updateOrder(id,{milk:5,apples:7, soup:1})
+    notify({simpleExample3:response})
+}   

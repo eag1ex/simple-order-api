@@ -11,8 +11,8 @@
 module.exports = function () {
     const moment = require('moment')
     const errorMessages = require('../errors')
-    const { notify, timestamp } = require('../utils')
-    const { cloneDeep, isEmpty,isNumber, reduce,last } = require('lodash')
+    const { notify, timestamp,numDate } = require('../utils')
+    const { cloneDeep, isEmpty,isNumber, reduce,last, merge,isEqual } = require('lodash')
     const Store = require('./Store')() // Micro Service
     const Basket = require('./Basket')() // Micro Service
 
@@ -24,7 +24,9 @@ module.exports = function () {
             // collect all client orders here
             this.clientBaskets = {}
             this.clientBasketModels = {} // keep track of basket objects for munipulation
+            this.clientQueries = {}
         }
+
 
         /**
          * - handle validation of the order in case there are issues with basket, or the store is empty
@@ -49,16 +51,12 @@ module.exports = function () {
              * each Basket is assigned an id timestamp
              */
             //id = timestamp()
-            id = id.toString()
-            const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
-            const o = b.set(order)
-                .get().data
-
-            if (isEmpty(o) || !o) {
+            const {data, basketModel} = this.newBasket(id,order)
+            if (isEmpty(data) || !data) {
                 return { error: true, ...errorMessages['003'] }
             }
 
-            const extraMeta = this.basketMeta(b)      
+            const extraMeta = this.basketMeta(basketModel)      
              // basket extra meta information 
             if(this.debug && !isEmpty(extraMeta)){
                 notify({
@@ -68,11 +66,10 @@ module.exports = function () {
             }
 
             // with this in mind we could create and update order, caching existing baskets
-            // NOTE `clientBasketModels` maybe a memory overkill    
-            // this.clientBasketModels = [id] = b
-            this.clientBaskets[id] = o
+            // NOTE `clientBasketModels` maybe a memory overkill   
+            this.setShopClient({id,order,basket:data, model:basketModel})
 
-            const noAvailable = this.notAvailable(b) ||{}
+            const noAvailable = this.notAvailable(basketModel) ||{}
             const currency =  this.currency.name
             return {
                 currency,
@@ -87,14 +84,68 @@ module.exports = function () {
         }
 
         /**
-         * TODO
-         * - update existing order
+         * we check for last order query, and merge it to new order query, then delete old basket order
+         * and use the same id to create new basket order.
          */
-        // updateOrder(id){
-                // this.clientBasketModels[id] etc
-        //     // this.clientBaskets[id] etc
-        // }
+        updateOrder(id,updateOrder) {
+            const lastBasket = this.getBasket(id) 
+            if (!lastBasket) {
+                return { error: true, ...errorMessages['011'] }
+            }
+
+            if(isEmpty(updateOrder)){
+                // return same order
+                console.log('returning same order!')
+                return lastBasket['payload']
+            }
+            // make sure before making update order our entriesare valid
+            const validEntry = (ordr)=>lastBasket['model'].validEntryValues(ordr,true)
+            if(isEmpty(validEntry(updateOrder))){
+                return { error: true, ...errorMessages['009'] }
+            }
+
+            const  {payload, model,query} =lastBasket
+            const dest_order = cloneDeep(query)
+            merge(dest_order,updateOrder);
+            if(isEmpty(dest_order)){
+                return { error: true, ...errorMessages['008'] }
+            }
+
+            // it si the same order, so return last basket instead
+            if(isEqual(query,updateOrder)) return lastBasket['payload']
+
+            // only test on existing order the new order we want to make, and return only valid items against the store
+            const validDestOrder = validEntry(dest_order)
+            if(isEmpty(validDestOrder)){
+                return { error: true, ...errorMessages['009'] }
+            }
+
+            /**
+             * to update existing order we create new one by mergind last to a combined new order, at the same time we delete last basket and re-create new basket using that id, so we can provide customer with the same order id.
+             */
+            try {
+                return this.deleteClient(id)
+                    .order(id, validDestOrder)
+            } catch (err) {
+                notify(err,true)
+                return { error: true, ...errorMessages['010'] }
+            }
+
+        }
         
+        /**
+         * - create new basket 
+         * @param {*} id # required
+         * @param {*} order # required
+         * returns : `{data,basketModel}`
+         */
+        newBasket(id,order={}){
+            id = id.toString()
+            const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
+            const o = b.set(order)
+                .get().data
+            return {data:o, basketModel:b}
+        }
 
         /**
          * - get available Store
@@ -103,8 +154,45 @@ module.exports = function () {
             return this.menu
         }
 
+        /**
+         * returns {store, basket} offers set in `config.js` of by user
+         */
+        get storeOffers(){
+            return this.offerSchema
+        }
 
 
+        /**
+         * get available Basket by id
+         * - returns `{payload,model,query}`
+         * @param {*} id timestamp
+         */
+        getBasket(id) {
+            if (!id || !numDate(id)) {
+                if (this.debug) notify('[getBasket] provided id for basket is invalid', true)
+                return null
+            }
+
+            try {
+                if (!this.shopClients['clientBaskets'][id] || 
+                    !this.shopClients['clientBasketModels'][id] || 
+                    !this.shopClients['clientQueries'][id]
+                    ) {
+                    if (this.debug) notify(`[getBasket] basket for id: ${id} does not exist`, true)
+                    return null
+                }
+            } catch (err) {
+                if(this.debug) notify(`[getBasket] your shopClient for: ${id} is empty`,true)
+                return null
+            }
+          
+            const b = {
+                query:  this.shopClients['clientQueries'][id],
+                payload: this.shopClients['clientBaskets'][id],
+                model: this.shopClients['clientBasketModels'][id]
+            }
+            return b
+        }
 
         /**
          * - format Basket extra meta data for output
@@ -144,6 +232,44 @@ module.exports = function () {
                 return {}
             }
             return b
+        }
+
+        /**
+         * sets each client request information and basket model
+         */
+        setShopClient({id,order, basket, model}){
+            this.clientBasketModels[id] = model
+            this.clientBaskets[id] = basket
+            this.clientQueries[id]= order
+            return this
+        }
+
+        //TODO delete client after purchase complete
+        deleteClient(id) {
+            if(!numDate(id)){
+                throw(`cannot delete client, provided id is invalid id: ${id}`)
+            }
+            delete this.clientBasketModels[id]
+            delete this.clientBaskets[id]
+            delete this.clientQueries[id]
+
+            return this
+        }
+
+        /**
+         * return all available client informations
+         * returns {clientBaskets,clientBasketModels,clientQueries} or empty object if any are empty 
+         */
+        get shopClients() {
+            // save sandboxed
+            return (function(){
+                if(isEmpty(this.clientBaskets) || isEmpty( this.clientBasketModels) || isEmpty(this.clientQueries)) return {}
+                return {
+                    clientBaskets: this.clientBaskets,
+                    clientBasketModels: this.clientBasketModels,
+                    clientQueries: this.clientQueries
+                }
+            }).call(this,{clientBaskets:this.clientBaskets,clientQueries:this.clientQueries })
         }
 
         /**

@@ -415,10 +415,11 @@ module.exports = function(){
         /**
          * - check that we have valid entries for our store, so only those can be accepted
          * @param {*} v 
+         * @param {*} test # do manual test on current basket without any changes
          */
-        validEntryValues(basket={}){
+        validEntryValues(basket={}, test=false){
             const updatedEntry = {}
-            if(!trueObject(basket)){
+            if(!trueObject(basket) || isEmpty(basket)){
                 notify(`[validEntryValues] basket must be a valid object`,true)
                 return null
             }
@@ -432,9 +433,11 @@ module.exports = function(){
                 }
 
                 if(!this.store[key]){
-                    const msg = `sorry we dont have item: ${key} in our store`
-                    notify(msg,0)
-                    this.basketErrors.push({name:key,message:msg})
+                    if(!test){
+                        const msg = `sorry we dont have item: ${key} in our store`
+                        notify(msg,0)
+                        this.basketErrors.push({name:key,message:msg})
+                    }
                     continue
                 }
                 updatedEntry[key] = value

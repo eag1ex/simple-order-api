@@ -2,7 +2,7 @@
 
 
 module.exports = function (expressApp) {
-    const { timestamp,numDate } = require('../utils')
+    const { timestamp,numDate, notify } = require('../utils')
     const { isEmpty,unset } = require('lodash')
     const errorMessages = require('../errors')
     const SimpleOrder = require('../simple-order/SimpleOrder')()
@@ -10,14 +10,29 @@ module.exports = function (expressApp) {
     return class ServerController {
         constructor(debug) {
             this.debug = debug
-            this.simpleOrder = new SimpleOrder({}, this.debug)
+            this.serverCatchLastError = null
+            try {
+                this.simpleOrder = new SimpleOrder({}, this.debug)
+            } catch (err) {
+                this.serverCatchLastError = err
+            }
         }
 
         offers(req, res){
-            return res.status(200).json({ success: true, response:'ok', code: 200 });
+            if(this.serverCatchLastError){
+                notify(this.serverCatchLastError,true)
+                return res.status(500).json({ error: true, ...errorMessages['007'] });
+            }
+            const o = this.simpleOrder.offerSchema
+
+            return res.status(200).json({ success: true, response:o, code: 200 });
         }
         
         store(req, res){
+            if(this.serverCatchLastError){
+                notify(this.serverCatchLastError,true)
+                return res.status(500).json({ error: true, ...errorMessages['007'] });
+            }
             const o = {
                 menu:this.simpleOrder.listStore,
                 storeOpen: this.simpleOrder.storeOpen()
@@ -27,6 +42,10 @@ module.exports = function (expressApp) {
         }
 
         order(req, res) {
+            if(this.serverCatchLastError){
+                notify(this.serverCatchLastError,true)
+                return res.status(500).json({ error: true, ...errorMessages['007'] });
+            }
             let quote= req.query || {}
 
             console.log('callin on order', quote)
@@ -48,8 +67,6 @@ module.exports = function (expressApp) {
             if (o.error) return res.status(200).json({ ...o });
             return res.status(200).json({ success: true, response:o, code: 200 });
         }
-
-
     }
 
 }
