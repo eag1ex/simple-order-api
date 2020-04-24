@@ -35,7 +35,7 @@ exports.basketOffers = [
             discount: 50, 
             //coupon:'124sdf46', TODO alternativly when apply coupon you also receive discount 
             message: 'Buy 2 or more tins of soup and get a loaf of bread for half price' 
-        }
+        },
     }
 ]
 

@@ -18,7 +18,7 @@ module.exports = function () {
     const { storeConfig, basketOffers, currency } = require('./config')
 
     const { uid, notify, discountIt, isType, trueObject } = require('../utils')
-    const { isEmpty, cloneDeep, reduce, isNaN } = require('lodash')
+    const { isEmpty, cloneDeep, reduce, isNaN, isArray } = require('lodash')
     return class Store {
 
         /**
@@ -30,6 +30,7 @@ module.exports = function () {
             this._offerSchema = (opts || {}).offerSchema || this.defaultOfferSchema
             this.applyStoreDiscounts = (opts || {}).applyStoreDiscounts || true
             this.validOffer()
+            this.validateConfig()
         }
 
 
@@ -125,6 +126,42 @@ module.exports = function () {
 
 
         /**
+         * - validate `config.js` {storeConfig,storeConfig} settings ofset by `offerSchema`
+         */
+        validateConfig() {
+            
+            if (!this.offerSchema['store']) throw ('the store is empty, check your config.js file')
+            if (!isArray(this.offerSchema['store'])) {
+                throw ('your offerSchema store must me an array')
+            }
+
+            for (let i = 0; i < this.offerSchema['store'].length; i++) {
+                const storeOffer = this.offerSchema['store'][i]
+                if (!trueObject(storeOffer) || isEmpty(storeOffer)) throw ('each offer in store must be an object with props, if no store offers remote it')
+            }
+
+            if (this.offerSchema['basket']) {
+                if (!isArray(this.offerSchema['basket'])) {
+                    throw ('your basket config must be an array of objects')
+                }
+
+                for (let i = 0; i < this.offerSchema['basket'].length; i++) {
+                    const basketOffers = this.offerSchema['basket'][i]
+                    if (!trueObject(basketOffers) || isEmpty(basketOffers)) throw ('each basketOffers must be an object with props')
+
+                    if (Object.keys(basketOffers).length > 1) throw ('each basketOffers must be top level entry, example: bread:{...}')
+
+                    const offerName = Object.keys(basketOffers)[0]
+                    if (!this.menu[offerName]) {
+                        notify(`warning your config.js {basketOffers} have offerings for item '${offerName}' NOT available in the storeData.js/json`, true)
+                    }
+                }
+
+            }
+
+            return true
+        }
+        /**
          * - check `storeData.json` entries are valid
          */
         validateStore() {
@@ -133,6 +170,7 @@ module.exports = function () {
                 this.lastStoreError = errorMessages['006'].message ///'Sorry, our store is out of stock!'
                 throw ('ups, your storeData.json is either empty or has invalid items')
             }
+
             if (isEmpty(storeEntries) || !trueObject(storeEntries)) throwError()
 
             const entries = {}
@@ -161,7 +199,7 @@ module.exports = function () {
 
                     continue
                 }
- 
+
                 if (item.discount !== undefined && isType(item.discount) !== 'number') {
                     if (this.debug) notify(`[validateStore], your store entry for ${key} / discount must be a number`, true)
 
@@ -194,7 +232,11 @@ module.exports = function () {
             const isValid = () => {
                 // test our props match
                 let ok = null
-                const stor = this.offerSchema['store']
+                const stor = this.offerSchema['store'] ||[]
+
+                // if not store specials, simply and empty array, also valid
+                if(isArray(stor) && isEmpty(stor)) return true
+
                 for (let i = 0; i < stor.length; i++) {
                     const offer = stor[i]
                     const keys = Object.keys(this.defaultOfferSchema['store'][0])

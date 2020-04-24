@@ -13,6 +13,18 @@ module.exports = function (expressApp) {
             this.simpleOrder = new SimpleOrder({}, this.debug)
         }
 
+        offers(req, res){
+            return res.status(200).json({ success: true, response:'ok', code: 200 });
+        }
+        
+        store(req, res){
+            const o = {
+                menu:this.simpleOrder.listStore,
+                storeOpen: this.simpleOrder.storeOpen()
+            }
+            // 
+            return res.status(200).json({ success: true, response:{menu:this.simpleOrder.listStore}, code: 200 });
+        }
 
         order(req, res) {
             let quote= req.query || {}
