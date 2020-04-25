@@ -6,8 +6,7 @@
   "scripts": {
     "examples": "node ./examples.js",
     "server": "node ./libs/server/serverApp.js",
-    "test": "node test.js",
-    "mocha": "mocha ./test/tests-1.js"
+    "test": "mocha ./test/tests-1.js"
   },
   "author": "eaglex.net",
   "license": "CC BY-NC-ND",
@@ -27,8 +26,6 @@
     "moment": "^2.24.0",
     "morgan": "^1.10.0",
     "q": "^1.5.1",
-    "request": "^2.88.2",
-    "tape": "^4.13.2",
     "util": "^0.12.2"
   },
   "engine": {

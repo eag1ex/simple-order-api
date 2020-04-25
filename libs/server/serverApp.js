@@ -1,3 +1,3 @@
 
 // initialize server
-const {app} = require('./server')
+require('./server')(true)

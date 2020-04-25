@@ -35,8 +35,6 @@
 
 
 
-
-
     // NOTE Server REST/apis code examples:
     /**
      * (GET): `/shoppingcard?id=1587748967237`
