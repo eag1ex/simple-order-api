@@ -1,6 +1,9 @@
 `use strict`
-// source #https://mochajs.org/
-// https://www.chaijs.com/
+
+// asset: https://mochajs.org/
+// asset: https://www.chaijs.com/
+
+
 const assert = require('assert');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -202,8 +205,6 @@ describe('server:api | all should pass', function () {
         done();
       });
   });
-
-
 })
 
 
@@ -215,13 +216,10 @@ describe('server:api | all should fail', function () {
   let orderID = new Date().getTime()
   // get current port
 
-
   after(function (done) {
     server.close();
     done();
   });
-
-
 
   it(`GET: /order should fail on empty query`, function (done) {
     chai.request(server)

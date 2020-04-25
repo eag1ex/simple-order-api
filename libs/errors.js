@@ -20,5 +20,5 @@ module.exports = errorMessages({
     '012':['SimpleOrder shoppingcard() must provide valid purchase id to get your orders','012'],
     '013':['SimpleOrder shoppingcard() sorry no cart details found for this id','013'],
     '014':['SimpleOrder order() sorry you cannot make new order on the same id, or an order that already exists, instead please use update() order','014'],
-    '015':['SimpleOrder sorry your entry request has invalid parameters','015']
+    '015':['SimpleOrder, sorry your entry request has invalid parameters','015']
 })

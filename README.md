@@ -62,7 +62,7 @@ $/ npm run test # runs coverage as well
 
 ```
 # example queries
-/order #(optionaly can prodive id= param)
+/order # (optionaly can prodive id= param)
 http://localhost:5000/order?bread=5&milk=2&apples=3&soup=3
 
 /update # make update to existing order
@@ -74,7 +74,7 @@ http://localhost:5000/shoppingcard?id=1587841023650
 /store # see whats in the store
 http://localhost:5000/store
 
-/offers# see whats on offer
+/offers # see whats on offer
 http://localhost:5000/offers
 ```
 
