@@ -6,7 +6,8 @@
   "scripts": {
     "examples": "node ./examples.js",
     "server": "node ./libs/server/serverApp.js",
-    "test": "mocha ./test/tests-1.js"
+    "mocha": "mocha ./test/tests-1.js",
+    "test": "nyc --reporter=html --port=2222 --reporter=text mocha"
   },
   "author": "eaglex.net",
   "license": "CC BY-NC-ND",
@@ -25,6 +26,7 @@
     "mocha": "^7.1.1",
     "moment": "^2.24.0",
     "morgan": "^1.10.0",
+    "nyc": "^15.0.1",
     "q": "^1.5.1",
     "util": "^0.12.2"
   },

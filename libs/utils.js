@@ -4,7 +4,7 @@ const util = require('util')
 const base64 = require('base-64')
 const Buffer = require('buffer').Buffer
 const color = require('bash-color')
-const {isNumber,isObject,isArray, isFunction, isEmpty} = require('lodash')
+const { isNumber, isObject, isArray, isFunction, isEmpty } = require('lodash')
 
 /**
  * @prop {*} l any data to print
@@ -13,7 +13,7 @@ const {isNumber,isObject,isArray, isFunction, isEmpty} = require('lodash')
 exports.notify = (l = null, err = false) => {
     if (err === 0) {
         console.log('  ')
-        console.log(util.inspect(l, false, null, true), (color.yellow('WARNING', true))) 
+        console.log(util.inspect(l, false, null, true), (color.yellow('WARNING', true)))
         console.log(color.yellow('-----------------------', true))
         console.log('  ')
         return
@@ -31,7 +31,7 @@ exports.notify = (l = null, err = false) => {
 }
 
 exports.uid = (str) => {
-    if (!str) throw('must provide str')
+    if (!str) throw ('must provide str')
     str = str.trim().replace(/\s/g, '')
     str = str.replace('.', '')
     str = str.replace('-', '')
@@ -39,22 +39,22 @@ exports.uid = (str) => {
     return ref.replace(/=/g, '')
 }
 
-exports.timestamp = ()=>{
+exports.timestamp = () => {
     return new Date().getTime()
 }
 
-exports.isType = (value)=>{
+exports.isType = (value) => {
     return typeof value
 }
 
-exports.trueObject = (value)=>{
+exports.trueObject = (value) => {
     return !isArray(value) && isObject(value) && !isFunction(value)
 }
 
-exports.discountIt = (val=0, discount=0)=>{
-    if(!isNumber(val) || !isNumber(discount)) throw('discount props must be numbers!')
-    const dcVal =  (val/100) * discount
-    return  val - dcVal
+exports.discountIt = (val = 0, discount = 0) => {
+    if (!isNumber(val) || !isNumber(discount)) throw ('discount props must be numbers!')
+    const dcVal = (val / 100) * discount
+    return val - dcVal
 }
 
 /**
@@ -69,21 +69,21 @@ exports.errorMessages = (messages) => {
     return msgs
 }
 
-exports.numDate = (num)=>{
-    return new Date(Number(num)).getTime() >1
+exports.numDate = (num) => {
+    return new Date(Number(num)).getTime() > 1
 }
 
 // accept query params with numbers only
-exports.validEntry = (basket)=>{
-    const isTrueObject = (o)=>!isArray(o) && isObject(o) && !isFunction(o)
+exports.validEntry = (basket) => {
+    const isTrueObject = (o) => !isArray(o) && isObject(o) && !isFunction(o)
 
     const updatedEntry = {}
-    if(!isTrueObject(basket) || isEmpty(basket)){
-        notify(`[validEntryValues] basket must be a valid object`,true)
+    if (!isTrueObject(basket) || isEmpty(basket)) {
+        console.log(`[validEntryValues] basket must be a valid object`)
         return null
     }
 
-    for(let [key, value] of Object.entries(basket)){
+    for (let [key, value] of Object.entries(basket)) {
         value = Number(value)
         // do not allow entries below 1, and not a number
         if (!isNumber(value) || value < 1 || isNaN(value)) {
@@ -92,7 +92,7 @@ exports.validEntry = (basket)=>{
         updatedEntry[key] = value
     }
 
-    if(isEmpty(updatedEntry)) return null
+    if (isEmpty(updatedEntry)) return null
     return updatedEntry;
 }
 

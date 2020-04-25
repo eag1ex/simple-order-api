@@ -11,8 +11,8 @@
 module.exports = function () {
     const moment = require('moment')
     const errorMessages = require('../errors')
-    const { notify, timestamp,numDate,validEntry } = require('../utils')
-    const { cloneDeep, isEmpty,isNumber, reduce,last, merge,isEqual } = require('lodash')
+    const { notify, timestamp, numDate, validEntry } = require('../utils')
+    const { cloneDeep, isEmpty, isNumber, reduce, last, merge, isEqual } = require('lodash')
     const Store = require('./Store')() // Micro Service
     const Basket = require('./Basket')() // Micro Service
 
@@ -37,32 +37,32 @@ module.exports = function () {
          */
         order(id = "", order = {}) {
             // validate
-            if(!this.storeOpen()){
-                return { error: true, ...errorMessages['006']}
+            if (!this.storeOpen()) {
+                return { error: true, ...errorMessages['006'] }
             }
             if (isEmpty(this.listStore)) {
-                return { error: true, ...errorMessages['001']}
+                return { error: true, ...errorMessages['001'] }
             }
             if (isEmpty(this.offerSchema['basket'])) {
-                return { error: true, ...errorMessages['002']}
+                return { error: true, ...errorMessages['002'] }
             }
 
 
-            if(!validEntry(order)){
-                return { error: true, ...errorMessages['015']}
+            if (!validEntry(order)) {
+                return { error: true, ...errorMessages['015'] }
             }
             /**
              * each Basket is assigned an id timestamp
              */
             //id = timestamp()
-            const {data, basketModel} = this.newBasket(id,order)
+            const { data, basketModel } = this.newBasket(id, order)
             if (isEmpty(data) || !data) {
                 return { error: true, ...errorMessages['003'] }
             }
 
-            const extraMeta = this.basketMeta(basketModel)      
-             // basket extra meta information 
-            if(this.debug && !isEmpty(extraMeta)){
+            const extraMeta = this.basketMeta(basketModel)
+            // basket extra meta information 
+            if (this.debug && !isEmpty(extraMeta)) {
                 notify({
                     message: "basket totals are",
                     ...extraMeta,
@@ -71,56 +71,56 @@ module.exports = function () {
 
             // with this in mind we could create and update order, caching existing baskets
             // NOTE `clientBasketModels` maybe a memory overkill   
-            this.setShopClient({id,order,basket:data, model:basketModel})
+            this.setShopClient({ id, order, basket: data, model: basketModel })
 
-            const noAvailable = this.notAvailable(basketModel) ||{}
-            const currency =  this.currency.name
+            const noAvailable = this.notAvailable(basketModel) || {}
+            const currency = this.currency.name
             return {
                 currency,
                 id,
                 ...extraMeta,
-                basket:{
+                basket: {
                     ...this.clientBaskets[id],
                     ...noAvailable
                 }
-                
-            }     
+
+            }
         }
 
         /**
          * we check for last order query, and merge it to new order query, then delete old basket order
          * and use the same id to create new basket order.
          */
-        updateOrder(id,updateOrder) {
-            const lastBasket = this.getBasket(id) 
+        updateOrder(id, updateOrder) {
+            const lastBasket = this.getBasket(id)
             if (!lastBasket) {
                 return { error: true, ...errorMessages['011'] }
             }
 
-            if(isEmpty(updateOrder)){
+            if (isEmpty(updateOrder)) {
                 // return same order
                 console.log('returning same order!')
                 return lastBasket['payload']
             }
             // make sure before making update order our entriesare valid
-            const validEntry = (ordr)=>lastBasket['model'].validEntryValues(ordr,true)
-            if(isEmpty(validEntry(updateOrder))){
+            const validEntry = (ordr) => lastBasket['model'].validEntryValues(ordr, true)
+            if (isEmpty(validEntry(updateOrder))) {
                 return { error: true, ...errorMessages['009'] }
             }
 
-            const  {payload, model,query} =lastBasket
+            const { payload, model, query } = lastBasket
             const dest_order = cloneDeep(query)
-            merge(dest_order,updateOrder);
-            if(isEmpty(dest_order)){
+            merge(dest_order, updateOrder);
+            if (isEmpty(dest_order)) {
                 return { error: true, ...errorMessages['008'] }
             }
 
             // it si the same order, so return last basket instead
-            if(isEqual(query,updateOrder)) return lastBasket['payload']
+            if (isEqual(query, updateOrder)) return lastBasket['payload']
 
             // only test on existing order the new order we want to make, and return only valid items against the store
             const validDestOrder = validEntry(dest_order)
-            if(isEmpty(validDestOrder)){
+            if (isEmpty(validDestOrder)) {
                 return { error: true, ...errorMessages['009'] }
             }
 
@@ -131,19 +131,19 @@ module.exports = function () {
                 return this.deleteClient(id)
                     .order(id, validDestOrder)
             } catch (err) {
-                notify(err,true)
+                notify(err, true)
                 return { error: true, ...errorMessages['010'] }
             }
 
         }
-        
+
         /**
          * check if order exists 
          * @param {*} id 
          */
-        orderExists(id){
+        orderExists(id) {
             id = id.toString()
-            if(this.clientExists(id)) return true
+            if (this.clientExists(id)) return true
             return false
         }
 
@@ -153,12 +153,12 @@ module.exports = function () {
          * @param {*} order # required
          * returns : `{data,basketModel}`
          */
-        newBasket(id,order={}){
+        newBasket(id, order = {}) {
             id = id.toString()
             const b = new Basket(id, cloneDeep(this.listStore), this.offerSchema['basket'], this.debug)
             const o = b.set(order)
                 .get().data
-            return {data:o, basketModel:b}
+            return { data: o, basketModel: b }
         }
 
         /**
@@ -171,19 +171,19 @@ module.exports = function () {
         /**
          * returns {store, basket} offers set in `config.js` of by user
          */
-        get storeOffers(){
+        get storeOffers() {
             return this.offerSchema
         }
 
-        clientExists(id){
+        clientExists(id) {
             try {
-                if (!this.shopClients['clientBaskets'][id] || 
-                    !this.shopClients['clientBasketModels'][id] || 
+                if (!this.shopClients['clientBaskets'][id] ||
+                    !this.shopClients['clientBasketModels'][id] ||
                     !this.shopClients['clientQueries'][id]
-                    ) {
+                ) {
                     return null
                 }
-            } catch (err) {            
+            } catch (err) {
                 return null
             }
             return true
@@ -199,13 +199,13 @@ module.exports = function () {
                 if (this.debug && !test) notify('[getBasket] provided id for basket is invalid', true)
                 return null
             }
-            if(!this.clientExists(id)){
+            if (!this.clientExists(id)) {
                 if (this.debug) notify(`[getBasket] basket for id: ${id} does not exist`, true)
                 return null
             }
 
             const b = {
-                query:  this.shopClients['clientQueries'][id],
+                query: this.shopClients['clientQueries'][id],
                 payload: this.shopClients['clientBaskets'][id],
                 model: this.shopClients['clientBasketModels'][id]
             }
@@ -255,17 +255,17 @@ module.exports = function () {
         /**
          * sets each client request information and basket model
          */
-        setShopClient({id,order, basket, model}){
+        setShopClient({ id, order, basket, model }) {
             this.clientBasketModels[id] = model
             this.clientBaskets[id] = basket
-            this.clientQueries[id]= order
+            this.clientQueries[id] = order
             return this
         }
 
         //TODO delete client after purchase complete
         deleteClient(id) {
-            if(!numDate(id)){
-                throw(`cannot delete client, provided id is invalid id: ${id}`)
+            if (!numDate(id)) {
+                throw (`cannot delete client, provided id is invalid id: ${id}`)
             }
             delete this.clientBasketModels[id]
             delete this.clientBaskets[id]
@@ -280,14 +280,14 @@ module.exports = function () {
          */
         get shopClients() {
             // save sandboxed
-            return (function(){
-                if(isEmpty(this.clientBaskets) || isEmpty( this.clientBasketModels) || isEmpty(this.clientQueries)) return {}
+            return (function () {
+                if (isEmpty(this.clientBaskets) || isEmpty(this.clientBasketModels) || isEmpty(this.clientQueries)) return {}
                 return {
                     clientBaskets: this.clientBaskets,
                     clientBasketModels: this.clientBasketModels,
                     clientQueries: this.clientQueries
                 }
-            }).call(this,{clientBaskets:this.clientBaskets,clientQueries:this.clientQueries })
+            }).call(this, { clientBaskets: this.clientBaskets, clientQueries: this.clientQueries })
         }
 
         /**
@@ -309,32 +309,5 @@ module.exports = function () {
                 }
             }
         }
-
-        /**
-         * - calculate total on the basket
-         * example:
-         * `
-         * {apples: {
-                purchase: "2",
-                metadata: {
-                label: "Apples",
-                value: 0.9,
-                info: "per bag",
-                discount: 10
-                },
-                price: 1.62
-                }
-            },...`
-         */
-        // calcTotal(id){
-        //       if(!this.clientBaskets[id]) return null
-        //        let total = 0
-
-        //        for(let [k,item] of Object.entries(this.clientBaskets[id])){
-        //             total = total+item.price
-        //        }      
-
-        //        return `${this.currency.symbol}${total}`
-        // }
     }
 }
