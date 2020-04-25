@@ -16,12 +16,15 @@
 * Good catch exceptions and error handling
   
 
+#### The Store
+* You can create own offers against purchases, and quantities of orders, examples available in: `./libs/simple-order/config.js`
+
+
 #### Why
 
 * You can make e-commerce shop out of this application, the base structure is already in place.
 
   
-
 #### Stack
 
 * OOP, Express.js, REST/API, build Micro Services _( `Basket.js`, `Store.js`, `SimpleOrder.js` )_, Error codes, Error handling, debug mode, Heroku ready, eslint
@@ -48,12 +51,9 @@ $/ npm run test # runs coverage as well
 
 * examples are available in `./examples.js`
 
-  
-  
 
 ###  Code Coverage
   * Latest code coverage in `./coverage/index.html`
-
 
 
 #### REST/Api
@@ -78,7 +78,6 @@ http://localhost:5000/store
 http://localhost:5000/offers
 ```
 
-  
 
 #### Heroku node.js server:
 * Running application is also available on:
@@ -111,8 +110,6 @@ We have `Express server` and `SimpleOrder`, application is initiated from `/serv
 
 - it starts via `./serverApp.js`, `SimpleOrder` application is initialized from `./server/controllers.js` with currently one request `get/order(..)` available.
 
-  
-  
 
 #### TODO
 
@@ -122,12 +119,10 @@ We have `Express server` and `SimpleOrder`, application is initiated from `/serv
 *  **(add)** local storage
 *  **(add)** Mongo server
 
-  
 
 ##### Contact
 * Have questions, or would like to submit feedback, `contact me at: https://eaglex.net/app/contact?product=Simple-Order-API`
 
-  
   
 
 ##### Thank you

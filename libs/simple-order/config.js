@@ -8,7 +8,7 @@
 
 
 /**
- * global store discounts for each item
+ * global store discounts on each item
  */
 exports.storeConfig = {
    // TODO maxPurchase:1000, // allowed purchase limit 
@@ -23,7 +23,6 @@ exports.storeConfig = {
 * - current available offer conditions are set for 'soup', can be fount on `Basket.calculatePrice`
 * 
 * **/
-
 exports.basketOffers = [
     {   // offer name
         'bread': { 
