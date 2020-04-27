@@ -114,8 +114,6 @@ We have `Express server` and `SimpleOrder`, application is initiated from `/serv
 #### TODO
 
 *  **(add)** basketOffers to storeData.json on individual items
-*  **(add)** add more tests
-*  **(add)** add mocha and istanbul
 *  **(add)** local storage
 *  **(add)** Mongo server
 

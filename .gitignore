@@ -7,7 +7,6 @@ npm-debug.log
 .DS_Store
 dist
 assets
-.nyc_output
 
 
 # Docker

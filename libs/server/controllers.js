@@ -139,7 +139,6 @@ module.exports = function (expressApp) {
             }
             let quote= req.query || {}
 
-
             /// SECTION handle validation of requests
             if (isEmpty(quote)) {
                 return res.status(200).json({ error: true, ...errorMessages['004'] });

@@ -3,7 +3,6 @@
 // asset: https://mochajs.org/
 // asset: https://www.chaijs.com/
 
-
 const assert = require('assert');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -14,11 +13,6 @@ const { notify } = require('../libs/utils')
 chai.use(chaiHttp);
 
 
-
-
-/**
- * passing tests should
- */
 
 describe('server:api | all should pass', function () {
 
